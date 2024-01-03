@@ -8,9 +8,19 @@
 Team Name: 你这图保真吗  
 
 
+### Results
+
+| method | pAcc | comment |
+| :-: | :-: | :-: |
+| cheaty | 99.897224% | detect image h/w==512 |
+| [AI-generated-art-classifier](https://huggingface.co/spaces/artfan123/AI-generated-art-classifier) | 88.69476% | resnet18 clf |
+
+
 ### Quickstart
 
-- install `mindspore` and `mindcv`
+- `conda create -n ms python==3.9 & conda activate ms`
+- install [mindspore](https://github.com/mindspore-ai/mindspore#installation) and [mindcv](https://mindspore-lab.github.io/mindcv/installation/)
+- run `predict.py`, see `output/result.txt`
 
 
 #### references

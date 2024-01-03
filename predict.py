@@ -4,22 +4,24 @@
 
 from pathlib import Path
 from argparse import ArgumentParser
-
 from PIL import Image
+
+from tqdm import tqdm
+
+from models import *
 
 
 def predict(args):
+  model = get_resnet18_finetuned_ai_art()
+
   cmp_fp = lambda fp: int(Path(fp).stem)
   fps = sorted(Path(args.test_data_path).iterdir(), key=cmp_fp)
 
   preds = []
-  for fp in fps:
+  for fp in tqdm(fps):
     img = Image.open(fp).convert('RGB')
-    w, h = img.size
-    if w == 512 or h == 512:
-      preds.append(1)
-    else:
-      preds.append(0)
+    pred = infer_resnet18_finetuned_ai_art(model, img)
+    preds.append(pred)
 
   out_fp = Path(args.output_path)
   out_fp.parent.mkdir(exist_ok=True, parents=True)
