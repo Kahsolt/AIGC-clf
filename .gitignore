@@ -1,0 +1,13 @@
+# meta
+.vscode/
+__pycache__/
+
+# data
+test/
+
+# repo
+repo/*
+!repo/*.cmd
+
+# generated
+out/
