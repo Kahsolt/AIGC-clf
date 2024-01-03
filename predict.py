@@ -2,13 +2,30 @@
 # Author: Armit
 # Create Time: 2024/01/03 
 
+from pathlib import Path
 from argparse import ArgumentParser
 
-import mindspore as ms
+from PIL import Image
 
 
 def predict(args):
-  pass
+  cmp_fp = lambda fp: int(Path(fp).stem)
+  fps = sorted(Path(args.test_data_path).iterdir(), key=cmp_fp)
+
+  preds = []
+  for fp in fps:
+    img = Image.open(fp).convert('RGB')
+    w, h = img.size
+    if w == 512 or h == 512:
+      preds.append(1)
+    else:
+      preds.append(0)
+
+  out_fp = Path(args.output_path)
+  out_fp.parent.mkdir(exist_ok=True, parents=True)
+  with open(out_fp, 'w', encoding='utf-8') as fh:
+    for p in preds:
+      fh.write(f'{p}\n')
 
 
 if __name__ == '__main__':
