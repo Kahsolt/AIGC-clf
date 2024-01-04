@@ -2,6 +2,7 @@
 # Author: Armit
 # Create Time: 2024/01/03 
 
+import math
 import json
 from pathlib import Path
 from typing import *
@@ -17,6 +18,18 @@ from mindspore import Tensor, Parameter
 import mindspore.dataset.transforms as T
 import mindspore.dataset.vision.transforms as VT
 
+
+ACT2FN = {
+    "gelu": nn.GELU(),
+    "linear": nn.Identity(),
+    "mish": nn.Mish(),
+    "relu": nn.ReLU(),
+    "relu6": nn.ReLU6(),
+    "sigmoid": nn.Sigmoid(),
+    "silu": nn.SiLU(),
+    "swish": nn.SiLU(),
+    "tanh": nn.Tanh(),
+}
 
 def load_npz_as_param_dict(fp:Path) -> Dict[str, Parameter]:
   kv: Dict[str, ndarray] = np.load(fp, allow_pickle=True)

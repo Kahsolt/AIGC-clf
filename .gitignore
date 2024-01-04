@@ -10,4 +10,5 @@ repo/*
 !repo/*.cmd
 
 # generated
-out/
+output/*
+!output/result-ref.txt

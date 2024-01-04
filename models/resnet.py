@@ -3,23 +3,13 @@
 # Create Time: 2024/01/03 
 
 from models.utils import *
+try: from mindcv.models.resnet import resnet18
+except: pass
 
 transform = T.Compose([
     VT.ToTensor(),
     VT.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225], is_hwc=False),
 ])
-
-ACT2FN = {
-    "gelu": nn.GELU(),
-    "linear": nn.Identity(),
-    "mish": nn.Mish(),
-    "relu": nn.ReLU(),
-    "relu6": nn.ReLU6(),
-    "sigmoid": nn.Sigmoid(),
-    "silu": nn.SiLU(),
-    "swish": nn.SiLU(),
-    "tanh": nn.Tanh(),
-}
 
 
 class ResNetConfig:
@@ -233,9 +223,18 @@ def param_dict_name_mapping(kv:Dict[str, Parameter]) -> Dict[str, Parameter]:
     return new_kv
 
 
-def get_resnet18_finetuned_ai_art() -> ResNetForImageClassification:
+def infer_resnet18(model:ResNetForImageClassification, img:PILImage) -> int:
+    X = transform(img)[0]   # do not know why this returns a ndarray tuple
+    X = Tensor.from_numpy(X).astype(ms.float32)
+    X = X.unsqueeze(0)
+    logits = model(X)
+    preds = logits.argmax(axis=-1)
+    return 1 - preds[0].item()      # swap 0-1
+
+
+def get_app(app_name:str) -> ResNetForImageClassification:
     HF_PATH = Path(__file__).parent.parent / 'huggingface'
-    APP_PATH = HF_PATH / 'artfan123#resnet-18-finetuned-ai-art'
+    APP_PATH = HF_PATH / app_name
     CONFIG_FILE = APP_PATH / 'model.json'
     WEIGHT_FILE = APP_PATH / 'model.npz'
 
@@ -248,17 +247,11 @@ def get_resnet18_finetuned_ai_art() -> ResNetForImageClassification:
     param_dict = load_npz_as_param_dict(WEIGHT_FILE)
     param_dict = param_dict_name_mapping(param_dict)
     ms.load_param_into_net(model, param_dict)
-
     return model
 
 
-def infer_resnet18_finetuned_ai_art(model:ResNetForImageClassification, img:PILImage) -> int:
-    X = transform(img)[0]   # do not know why this returns a ndarray tuple
-    X = Tensor.from_numpy(X).astype(ms.float32)
-    X = X.unsqueeze(0)
-    logits = model(X)
-    preds = logits.argmax(axis=-1)
-    return 1 - preds[0].item()      # swap 0-1
+def get_resnet18_finetuned_ai_art() -> ResNetForImageClassification:
+    return get_app('artfan123#resnet-18-finetuned-ai-art')
 
 
 if __name__ == '__main__':
