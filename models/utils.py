@@ -5,6 +5,7 @@
 import math
 import json
 from pathlib import Path
+from functools import partial
 from typing import *
 
 import numpy as np

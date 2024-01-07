@@ -662,14 +662,14 @@ def param_dict_name_mapping(kv:Dict[str, Parameter]) -> Dict[str, Parameter]:
     for k in kv.keys():
         new_k = k
         # LayerNorm
-        if '.layernorm_before.weight' in k: new_k = k.replace('.layernorm_before.weight', '.layernorm_before.gamma')
-        if '.layernorm_before.bias'   in k: new_k = k.replace('.layernorm_before.bias',   '.layernorm_before.beta')
-        if '.layernorm_after.weight'  in k: new_k = k.replace('.layernorm_after.weight',  '.layernorm_after.gamma')
-        if '.layernorm_after.bias'    in k: new_k = k.replace('.layernorm_after.bias',    '.layernorm_after.beta')
-        if '.layernorm.weight'        in k: new_k = k.replace('.layernorm.weight',        '.layernorm.gamma')
-        if '.layernorm.bias'          in k: new_k = k.replace('.layernorm.bias',          '.layernorm.beta')
-        if '.norm.weight'             in k: new_k = k.replace('.norm.weight',             '.norm.gamma')
-        if '.norm.bias'               in k: new_k = k.replace('.norm.bias',               '.norm.beta')
+        if k.endswith('.layernorm_before.weight'): new_k = k.replace('.layernorm_before.weight', '.layernorm_before.gamma')
+        if k.endswith('.layernorm_before.bias')  : new_k = k.replace('.layernorm_before.bias',   '.layernorm_before.beta')
+        if k.endswith('.layernorm_after.weight') : new_k = k.replace('.layernorm_after.weight',  '.layernorm_after.gamma')
+        if k.endswith('.layernorm_after.bias')   : new_k = k.replace('.layernorm_after.bias',    '.layernorm_after.beta')
+        if k.endswith('.layernorm.weight')       : new_k = k.replace('.layernorm.weight',        '.layernorm.gamma')
+        if k.endswith('.layernorm.bias')         : new_k = k.replace('.layernorm.bias',          '.layernorm.beta')
+        if k.endswith('.norm.weight')            : new_k = k.replace('.norm.weight',             '.norm.gamma')
+        if k.endswith('.norm.bias')              : new_k = k.replace('.norm.bias',               '.norm.beta')
         new_kv[new_k] = kv[k]
     return new_kv
 
@@ -697,6 +697,15 @@ def get_app(app_name:str) -> SwinForImageClassification:
     model = model.set_train(False)
     param_dict = load_npz_as_param_dict(WEIGHT_FILE)
     param_dict = param_dict_name_mapping(param_dict)
+    if 'ckeck keys match':
+        model_keys = set(model.parameters_dict().keys())
+        ckpt_keys = set(param_dict.keys())
+        missing_keys = model_keys - ckpt_keys
+        redundant_keys = ckpt_keys - model_keys
+        if redundant_keys or missing_keys:
+            print('redundant keys:', redundant_keys)
+            print('missing keys:', missing_keys)
+            breakpoint()
     ms.load_param_into_net(model, param_dict)
     return model
 
@@ -712,6 +721,7 @@ def get_xl_detector() -> SwinForImageClassification:
 if __name__ == '__main__':
     model = get_AI_image_detector()
     #model = get_xl_detector()
+    print(model)
     X = F.zeros([1, 3, 224, 224])
     logits = model(X)
     print(logits)

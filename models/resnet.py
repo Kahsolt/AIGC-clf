@@ -215,10 +215,11 @@ def param_dict_name_mapping(kv:Dict[str, Parameter]) -> Dict[str, Parameter]:
     for k in kv.keys():
         new_k = k
         # BatchNorm
-        if '.normalization.running_mean' in k: new_k = k.replace('.normalization.running_mean', '.normalization.moving_mean')
-        if '.normalization.running_var'  in k: new_k = k.replace('.normalization.running_var',  '.normalization.moving_variance')
-        if '.normalization.weight'       in k: new_k = k.replace('.normalization.weight',       '.normalization.gamma')
-        if '.normalization.bias'         in k: new_k = k.replace('.normalization.bias',         '.normalization.beta')
+        if k.endswith('.normalization.running_mean'): new_k = k.replace('.normalization.running_mean', '.normalization.moving_mean')
+        if k.endswith('.normalization.running_var'):  new_k = k.replace('.normalization.running_var',  '.normalization.moving_variance')
+        if k.endswith('.normalization.weight'):       new_k = k.replace('.normalization.weight',       '.normalization.gamma')
+        if k.endswith('.normalization.bias'):         new_k = k.replace('.normalization.bias',         '.normalization.beta')
+        if k.endswith('.num_batches_tracked'): continue     # ignore key
         new_kv[new_k] = kv[k]
     return new_kv
 
@@ -246,6 +247,15 @@ def get_app(app_name:str) -> ResNetForImageClassification:
     model = model.set_train(False)
     param_dict = load_npz_as_param_dict(WEIGHT_FILE)
     param_dict = param_dict_name_mapping(param_dict)
+    if 'ckeck keys match':
+        model_keys = set(model.parameters_dict().keys())
+        ckpt_keys = set(param_dict.keys())
+        missing_keys = model_keys - ckpt_keys
+        redundant_keys = ckpt_keys - model_keys
+        if redundant_keys or missing_keys:
+            print('redundant keys:', redundant_keys)
+            print('missing keys:', missing_keys)
+            breakpoint()
     ms.load_param_into_net(model, param_dict)
     return model
 
@@ -256,6 +266,7 @@ def get_resnet18_finetuned_ai_art() -> ResNetForImageClassification:
 
 if __name__ == '__main__':
     model = get_resnet18_finetuned_ai_art()
+    print(model)
     X = F.zeros([1, 3, 224, 224])
     logits = model(X)
     print(logits)
