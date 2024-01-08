@@ -21,10 +21,10 @@ def load_truth() -> List[int]:
 
 
 def predict(args):
-  app = 2
+  app = 0
   if app == 0:
     model_func = get_resnet18_finetuned_ai_art
-    infer_func = infer_resnet18
+    infer_func = infer_resnet
   elif app == 1:
     model_func = get_AI_image_detector
     infer_func = infer_swin
@@ -43,7 +43,7 @@ def predict(args):
   pbar = tqdm(fps)
   for i, fp in enumerate(pbar):
     img = Image.open(fp).convert('RGB')
-    pred = infer_func(model, img)
+    pred = 1 - infer_func(model, img)   # swap 0-1
     preds.append(pred)
 
     ok += pred == truth[i]

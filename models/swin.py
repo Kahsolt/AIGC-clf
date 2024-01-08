@@ -674,13 +674,13 @@ def param_dict_name_mapping(kv:Dict[str, Parameter]) -> Dict[str, Parameter]:
     return new_kv
 
 
-def infer_swin(model:SwinForImageClassification, img:PILImage) -> int:
+def infer_swin(model:nn.Cell, img:PILImage, debug:bool=False) -> Union[int, Tuple[float, float], Tuple[int, int], Tuple[int]]:
     X = transform(img)[0]   # do not know why this returns a ndarray tuple
     X = Tensor.from_numpy(X).astype(ms.float32)
-    X = X.unsqueeze(0)
-    logits = model(X)
-    preds = logits.argmax(axis=-1)
-    return 1 - preds[0].item()      # swap 0-1
+    logits = model(X.unsqueeze(0)).squeeze(0)
+    probs = F.softmax(logits, axis=-1)
+    pred = F.argmax(probs).item()
+    return (logits.numpy().tolist(), probs.numpy().tolist(), pred) if debug else pred
 
 
 def get_app(app_name:str) -> SwinForImageClassification:
