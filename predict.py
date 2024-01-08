@@ -16,6 +16,9 @@ def load_preds(fp)-> list:
     lines = fh.read().strip().split('\n')
   return [int(ln) for ln in lines]
 
+def load_truth() -> List[int]:
+  return load_preds(REF_FILE)
+
 
 def predict(args):
   app = 2
@@ -30,7 +33,7 @@ def predict(args):
     infer_func = infer_swin
 
   model = model_func()
-  truth = load_preds(REF_FILE)
+  truth = load_truth()
 
   cmp_fp = lambda fp: int(Path(fp).stem)
   fps = sorted(Path(args.test_data_path).iterdir(), key=cmp_fp)

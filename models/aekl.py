@@ -882,9 +882,27 @@ def param_dict_name_mapping(kv:Dict[str, Parameter]) -> Dict[str, Parameter]:
 
 
 def infer_autoencoder_kl(model:AutoencoderKL, img:PILImage) -> Tuple[Tensor, Tensor]:
+    def pad(x:Tensor, opt_C:int=8) -> Tuple[Tensor, Tuple[int]]:
+        C, H, W = x.shape
+        H_pad = math.ceil(H / opt_C) * opt_C - H
+        W_pad = math.ceil(W / opt_C) * opt_C - W
+        pL, pR, pT, pB = W_pad//2, W_pad-W_pad//2, H_pad//2, H_pad-H_pad//2
+        if min(pL, pR, pT, pB) > 0:
+            x = F.pad(x, padding=(pL, pR, pT, pB), mode='reflect')
+        return x, (pL, pR, pT, pB)
+    def unpad(x:Tensor, pads:Tuple[int]) -> Tensor:
+        pL, pR, pT, pB = pads
+        if min(pL, pR, pT, pB) > 0:
+            sH = slice(pT, -pB if pB else None)
+            sW = slice(pL, -pR if pR else None)
+            x = x[:, sH, sW]
+        return x
+
     X = transform(img)[0]   # do not know why this returns a ndarray tuple
     X = Tensor.from_numpy(X).astype(ms.float32)
-    X_hat = model(X.unsqueeze(0)).squeeze(0)
+    X_pad, pads = pad(X)
+    X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)
+    X_hat = unpad(X_pad_hat, pads)
     return X, X_hat
 
 
