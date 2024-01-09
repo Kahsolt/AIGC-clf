@@ -887,12 +887,12 @@ def infer_autoencoder_kl(model:AutoencoderKL, img:PILImage) -> Tuple[Tensor, Ten
         H_pad = math.ceil(H / opt_C) * opt_C - H
         W_pad = math.ceil(W / opt_C) * opt_C - W
         pL, pR, pT, pB = W_pad//2, W_pad-W_pad//2, H_pad//2, H_pad-H_pad//2
-        if min(pL, pR, pT, pB) > 0:
+        if max(pL, pR, pT, pB) > 0:
             x = F.pad(x, padding=(pL, pR, pT, pB), mode='reflect')
         return x, (pL, pR, pT, pB)
     def unpad(x:Tensor, pads:Tuple[int]) -> Tensor:
         pL, pR, pT, pB = pads
-        if min(pL, pR, pT, pB) > 0:
+        if max(pL, pR, pT, pB) > 0:
             sH = slice(pT, -pB if pB else None)
             sW = slice(pL, -pR if pR else None)
             x = x[:, sH, sW]

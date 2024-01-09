@@ -9,6 +9,5 @@ test/
 repo/*
 !repo/*.cmd
 
-# generated
-output/*
-!output/result-ref.txt
+# ref
+ref/

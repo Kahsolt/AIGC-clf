@@ -2,27 +2,13 @@
 # Author: Armit
 # Create Time: 2024/01/07 
 
-import json
-from pathlib import Path
-from PIL import Image
-from tqdm import tqdm
-from traceback import format_exc
-import gc
-
-import mindspore as ms
-import mindspore.ops as F
-import matplotlib.pyplot as plt
-ms.set_context(device_target='CPU', mode=ms.PYNATIVE_MODE)
+from utils import *
 
 from models.aekl import get_sd_vae_ft_ema, get_sd_vae_ft_mse, infer_autoencoder_kl
-from predict import load_truth
-
-BASE_PATH = Path(__file__).parent
-DATA_PATH = BASE_PATH / 'test'
 
 
 def stats():
-  app = 0
+  app = 1
   if app == 0:
     model_func = get_sd_vae_ft_ema
     infer_func = infer_autoencoder_kl
@@ -36,20 +22,14 @@ def stats():
   model = model_func()
   loss_fn = lambda x, y: F.l1_loss(x, y).item()
 
-  DB_FILE = BASE_PATH / 'output' / f'stats_{model_name}.json'
-  if DB_FILE.exists():
-    with open(DB_FILE, 'r', encoding='utf-8') as fh:
-      db = json.load(fh)
-  else:
-    db = {}
-
-  cmp_fp = lambda fp: int(Path(fp).stem)
-  fps = sorted(Path(DATA_PATH).iterdir(), key=cmp_fp)
+  db_file = OUT_PATH / f'stats_{model_name}.json'
+  db = load_db(db_file)
+  fps = get_test_fps()
 
   gc.enable()
   try:
     for i, fp in enumerate(tqdm(fps)):
-      if str(i) in db: continue
+      if str(i) in db and type(db[str(i)]) != str: continue
       img = Image.open(fp).convert('RGB')
       try:
         x, x_hat = infer_func(model, img)
@@ -62,12 +42,12 @@ def stats():
         print(e)
         db[i] = e
         gc.collect()
+      save_db(db, db_file)
   except KeyboardInterrupt:
     pass
   gc.disable()
 
-  with open(DB_FILE, 'w', encoding='utf-8') as fh:
-    json.dump(db, fh, indent=2, ensure_ascii=False)
+  save_db(db, db_file)
 
   color = []
   err_0 = []
@@ -78,11 +58,11 @@ def stats():
     err_0.append(res[0])
     err_1.append(res[1])
   plt.clf()
-  plt.scatter(err_0, err_1, c=color)
+  plt.scatter(err_0, err_1, c=color, cmap='bwr')
   plt.xlabel('l1_err w/o clip')
   plt.ylabel('l1_err w/ clip')
   plt.suptitle(model_name)
-  plt.show()
+  plt.savefig(IMG_PATH / f'stats_{model_name}.png', dpi=800)
 
 
 if __name__ == '__main__':

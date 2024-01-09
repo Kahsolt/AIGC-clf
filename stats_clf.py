@@ -2,22 +2,10 @@
 # Author: Armit
 # Create Time: 2024/01/07 
 
-import json
-from pathlib import Path
-from PIL import Image
-from tqdm import tqdm
-import gc
-
-import mindspore as ms
-import matplotlib.pyplot as plt
-ms.set_context(device_target='CPU', mode=ms.PYNATIVE_MODE)
+from utils import *
 
 from models.resnet import get_resnet18_finetuned_ai_art, infer_resnet
 from models.swin import get_AI_image_detector, get_xl_detector, infer_swin
-from predict import load_truth
-
-BASE_PATH = Path(__file__).parent
-DATA_PATH = BASE_PATH / 'test'
 
 
 def stats():
@@ -33,20 +21,14 @@ def stats():
   elif app == 2:
     model_func = get_xl_detector
     infer_func = infer_swin
-    model_name = 'swin_sdx'
+    model_name = 'swin_sdxl'
 
   truth = load_truth()
   model = model_func()
 
-  DB_FILE = BASE_PATH / 'output' / f'stats_{model_name}.json'
-  if DB_FILE.exists():
-    with open(DB_FILE, 'r', encoding='utf-8') as fh:
-      db = json.load(fh)
-  else:
-    db = {}
-
-  cmp_fp = lambda fp: int(Path(fp).stem)
-  fps = sorted(Path(DATA_PATH).iterdir(), key=cmp_fp)
+  db_file = OUT_PATH / f'stats_{model_name}.json'
+  db = load_db(db_file)
+  fps = get_test_fps()
 
   gc.enable()
   for i, fp in enumerate(tqdm(fps)):
@@ -57,13 +39,12 @@ def stats():
       'logits': logits,
       'probs': probs,
       'pred': pred,
-      'ok': truth[i] == 1 - pred,
+      'ok': truth[i] == 1 - pred,   # swap 0-1
     }
     print(f'[{i}] res:', db[i])
   gc.disable()
 
-  with open(DB_FILE, 'w', encoding='utf-8') as fh:
-    json.dump(db, fh, indent=2, ensure_ascii=False)
+  save_db(db, db_file)
   print(f'>> pAcc: {sum(rec["ok"] for rec in db.values()) / len(db):.5%}')
 
   color = []
@@ -76,11 +57,11 @@ def stats():
     out_0.append(logits[0])
     out_1.append(logits[1])
   plt.clf()
-  plt.scatter(out_0, out_1, c=color)
-  plt.xlabel('logits_0')
-  plt.ylabel('logits_1')
+  plt.scatter(out_0, out_1, c=color, cmap='bwr')
+  plt.xlabel('logits_0')    # AI
+  plt.ylabel('logits_1')    # real
   plt.suptitle(model_name)
-  plt.show()
+  plt.savefig(IMG_PATH / f'stats_{model_name}.png', dpi=800)
 
 
 if __name__ == '__main__':

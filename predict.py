@@ -8,16 +8,7 @@ from PIL import Image
 from tqdm import tqdm
 
 from models import *
-
-REF_FILE = './output/result-ref.txt'
-
-def load_preds(fp)-> list:
-  with open(fp) as fh:
-    lines = fh.read().strip().split('\n')
-  return [int(ln) for ln in lines]
-
-def load_truth() -> List[int]:
-  return load_preds(REF_FILE)
+from utils import *
 
 
 def predict(args):
@@ -32,11 +23,9 @@ def predict(args):
     model_func = get_xl_detector
     infer_func = infer_swin
 
-  model = model_func()
   truth = load_truth()
-
-  cmp_fp = lambda fp: int(Path(fp).stem)
-  fps = sorted(Path(args.test_data_path).iterdir(), key=cmp_fp)
+  model = model_func()
+  fps = get_test_fps()
 
   preds = []
   tot, ok = 0, 0
