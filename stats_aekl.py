@@ -2,7 +2,7 @@
 # Author: Armit
 # Create Time: 2024/01/07 
 
-from utils import *
+from utils_ms import *
 
 from models.aekl import get_sd_vae_ft_ema, get_sd_vae_ft_mse, infer_autoencoder_kl
 

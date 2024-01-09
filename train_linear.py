@@ -5,7 +5,7 @@
 from mindspore.dataset import GeneratorDataset
 from mindspore.train.callback import LossMonitor
 
-from utils import *
+from utils_ms import *
 
 # https://zhuanlan.zhihu.com/p/457516369
 

@@ -4,26 +4,25 @@
 
 import json
 from pathlib import Path
-from PIL import Image
-from tqdm import tqdm
-from traceback import format_exc
+from shutil import copy2
 from typing import *
+from traceback import format_exc
 import gc
 
+from tqdm import tqdm
+from PIL import Image
 import numpy as np
-import mindspore as ms
-import mindspore.nn as nn
-import mindspore.ops as F
-from mindspore import Tensor
+from numpy import ndarray
 import matplotlib.pyplot as plt
-ms.set_context(mode=ms.PYNATIVE_MODE, device_target='CPU')
 
 BASE_PATH = Path(__file__).parent
+HF_PATH = BASE_PATH / 'huggingface'
 DATA_PATH = BASE_PATH / 'test'
 DATA_FAKE_PATH = BASE_PATH / 'data' / 'imgs'
 IMG_PATH = BASE_PATH / 'img' ; IMG_PATH.mkdir(exist_ok=True)
 OUT_PATH = BASE_PATH / 'output' ; OUT_PATH.mkdir(exist_ok=True)
 TRUTH_FILE = OUT_PATH / 'result-ref.txt'
+RESULT_FILE = OUT_PATH / 'result.txt'
 
 
 def get_test_fps(dp:Path=DATA_PATH):

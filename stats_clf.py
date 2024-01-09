@@ -2,7 +2,7 @@
 # Author: Armit
 # Create Time: 2024/01/07 
 
-from utils import *
+from utils_ms import *
 
 from models.resnet import get_resnet18_finetuned_ai_art, infer_resnet
 from models.swin import get_AI_image_detector, get_xl_detector, infer_swin
