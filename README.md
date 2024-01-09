@@ -16,6 +16,7 @@ Team Name: 你这图保真吗
 | [AI-generated-art-classifier](https://huggingface.co/spaces/artfan123/AI-generated-art-classifier) | 88.69476% | resnet18 clf |
 | [AI-image-detector](https://huggingface.co/umm-maybe/AI-image-detector) | 78.82837% | swin clf |
 | [sdxl-detector](https://huggingface.co/Organika/sdxl-detector) | 56.62898% | swin clf |
+| [sd-vae-ft-mse](https://huggingface.co/stabilityai/sd-vae-ft-mse) | 70.7086% | aekl + clf |
 
 
 ### Quickstart

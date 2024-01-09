@@ -10,10 +10,13 @@ from traceback import format_exc
 from typing import *
 import gc
 
+import numpy as np
 import mindspore as ms
+import mindspore.nn as nn
 import mindspore.ops as F
+from mindspore import Tensor
 import matplotlib.pyplot as plt
-ms.set_context(device_target='CPU', mode=ms.PYNATIVE_MODE)
+ms.set_context(mode=ms.PYNATIVE_MODE, device_target='CPU')
 
 BASE_PATH = Path(__file__).parent
 DATA_PATH = BASE_PATH / 'test'

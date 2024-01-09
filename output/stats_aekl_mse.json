@@ -1,0 +1,921 @@
+{
+  "0": [
+    0.024241140112280846,
+    0.023630669340491295
+  ],
+  "1": [
+    0.02504766173660755,
+    0.02491186372935772
+  ],
+  "2": [
+    0.022797077894210815,
+    0.022652139887213707
+  ],
+  "3": [
+    0.053831882774829865,
+    0.05378038063645363
+  ],
+  "4": [
+    0.02248637191951275,
+    0.021253442391753197
+  ],
+  "5": "Traceback (most recent call last):\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\stats_aekl.py\", line 35, in stats\n    x, x_hat = infer_func(model, img)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 904, in infer_autoencoder_kl\n    X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 863, in construct\n    dec = self.decode(z)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 848, in decode\n    dec = self.decoder(z)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 738, in construct\n    sample = self.mid_block(sample)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 593, in construct\n    hidden_states = attn(hidden_states)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 504, in construct\n    attention_scores = F.matmul(query_states * scale, key_states.swapaxes(-1, -2) * scale)  # TODO: use baddmm\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\ops\\function\\math_func.py\", line 9690, in matmul\n    input = _broadcast_to(input, shape1_aligned[:-2], shape_backbone, ndim_aligned)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\ops\\function\\math_func.py\", line 9597, in _broadcast_to\n    F.stop_gradient(size)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\ops\\function\\grad\\grad_func.py\", line 1402, in stop_gradient\n    return P.StopGradient()(value)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\ops\\primitive.py\", line 314, in __call__\n    return _run_op(self, self.name, args)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\ops\\primitive.py\", line 913, in _run_op\n    stub = _pynative_executor.run_op_async(obj, op_name, args)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\common\\api.py\", line 1186, in run_op_async\n    return self._executor.run_op_async(*args)\nRuntimeError: Malloc for kernel output failed, Memory isn't enough, node:Default/BatchMatMul-op604\n\n----------------------------------------------------\n- C++ Call Stack: (For framework developers)\n----------------------------------------------------\nmindspore\\ccsrc\\runtime\\pynative\\run_op_helper.cc:1043 mindspore::runtime::`anonymous-namespace'::LaunchKernels\n\n",
+  "6": [
+    0.01698690839111805,
+    0.016750792041420937
+  ],
+  "7": [
+    0.019389139488339424,
+    0.018529994413256645
+  ],
+  "8": [
+    0.016616927459836006,
+    0.015759361907839775
+  ],
+  "9": [
+    0.06207726523280144,
+    0.06188635900616646
+  ],
+  "10": [
+    0.028908152133226395,
+    0.028878366574645042
+  ],
+  "11": [
+    0.031054532155394554,
+    0.030156217515468597
+  ],
+  "12": [
+    0.011260361410677433,
+    0.011243064887821674
+  ],
+  "13": [
+    0.03583623841404915,
+    0.03494090586900711
+  ],
+  "14": [
+    0.021891126409173012,
+    0.021853921934962273
+  ],
+  "15": [
+    0.03375280275940895,
+    0.03349236026406288
+  ],
+  "16": [
+    0.02228277362883091,
+    0.02222346141934395
+  ],
+  "17": [
+    0.030242005363106728,
+    0.029181959107518196
+  ],
+  "18": [
+    0.02203664742410183,
+    0.02165456861257553
+  ],
+  "19": [
+    0.007387702353298664,
+    0.007387702353298664
+  ],
+  "20": [
+    0.014241483062505722,
+    0.014082442969083786
+  ],
+  "21": [
+    0.03137441352009773,
+    0.031262945383787155
+  ],
+  "22": [
+    0.03717239946126938,
+    0.03608037531375885
+  ],
+  "23": [
+    0.019914334639906883,
+    0.018161477521061897
+  ],
+  "24": [
+    0.033671438694000244,
+    0.033658117055892944
+  ],
+  "25": [
+    0.042314428836107254,
+    0.04229574277997017
+  ],
+  "26": [
+    0.017881611362099648,
+    0.017573965713381767
+  ],
+  "27": [
+    0.024820176884531975,
+    0.023337334394454956
+  ],
+  "28": [
+    0.03220557048916817,
+    0.03220277652144432
+  ],
+  "29": [
+    0.037718623876571655,
+    0.03730255365371704
+  ],
+  "30": [
+    0.024076638743281364,
+    0.022071192041039467
+  ],
+  "31": [
+    0.0267778430134058,
+    0.026319362223148346
+  ],
+  "32": [
+    0.01721987873315811,
+    0.017161041498184204
+  ],
+  "33": [
+    0.021840495988726616,
+    0.02164365164935589
+  ],
+  "34": [
+    0.020343098789453506,
+    0.020277656614780426
+  ],
+  "35": [
+    0.02585470676422119,
+    0.025088747963309288
+  ],
+  "36": [
+    0.020855335518717766,
+    0.020852845162153244
+  ],
+  "37": [
+    0.02007072977721691,
+    0.019891925156116486
+  ],
+  "38": [
+    0.01748463697731495,
+    0.01747456006705761
+  ],
+  "39": [
+    0.0262634065002203,
+    0.024991879239678383
+  ],
+  "40": [
+    0.015824800357222557,
+    0.015416800044476986
+  ],
+  "41": [
+    0.010676546953618526,
+    0.009774085134267807
+  ],
+  "42": [
+    0.0604054220020771,
+    0.06026790663599968
+  ],
+  "43": [
+    0.024675952270627022,
+    0.02461692877113819
+  ],
+  "44": [
+    0.022139670327305794,
+    0.021291496232151985
+  ],
+  "45": [
+    0.03497401997447014,
+    0.033536773175001144
+  ],
+  "46": [
+    0.025799015536904335,
+    0.024411030113697052
+  ],
+  "47": [
+    0.014788953587412834,
+    0.01471232995390892
+  ],
+  "48": [
+    0.02744169905781746,
+    0.027441561222076416
+  ],
+  "49": [
+    0.0243399478495121,
+    0.024098195135593414
+  ],
+  "50": [
+    0.02269323356449604,
+    0.022672610357403755
+  ],
+  "51": [
+    0.019067080691456795,
+    0.017817484214901924
+  ],
+  "52": [
+    0.02690848335623741,
+    0.026793306693434715
+  ],
+  "53": [
+    0.032192669808864594,
+    0.03201587125658989
+  ],
+  "54": [
+    0.0195771511644125,
+    0.019517865031957626
+  ],
+  "55": [
+    0.026383759453892708,
+    0.026224767789244652
+  ],
+  "56": [
+    0.011820036917924881,
+    0.01156084705144167
+  ],
+  "57": [
+    0.046104688197374344,
+    0.04289504885673523
+  ],
+  "58": [
+    0.04387271776795387,
+    0.043808866292238235
+  ],
+  "59": [
+    0.03214742988348007,
+    0.03148830682039261
+  ],
+  "60": [
+    0.02732946164906025,
+    0.027279013767838478
+  ],
+  "61": [
+    0.02659040503203869,
+    0.02576226182281971
+  ],
+  "62": [
+    0.023999866098165512,
+    0.023996302857995033
+  ],
+  "63": [
+    0.034441668540239334,
+    0.03435779735445976
+  ],
+  "64": [
+    0.019828137010335922,
+    0.01945238746702671
+  ],
+  "65": [
+    0.018416492268443108,
+    0.01682216115295887
+  ],
+  "66": [
+    0.018745465204119682,
+    0.018636709079146385
+  ],
+  "67": [
+    0.016476457938551903,
+    0.01621846854686737
+  ],
+  "68": [
+    0.023814262822270393,
+    0.023528771474957466
+  ],
+  "69": [
+    0.009456891566514969,
+    0.009415059350430965
+  ],
+  "70": [
+    0.018996406346559525,
+    0.0184919573366642
+  ],
+  "71": [
+    0.016618065536022186,
+    0.016305645927786827
+  ],
+  "72": "Traceback (most recent call last):\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\stats_aekl.py\", line 35, in stats\n    x, x_hat = infer_func(model, img)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 904, in infer_autoencoder_kl\n    X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 702, in __call__\n    _pynative_executor.end_graph(self, output, *args, **kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\common\\api.py\", line 1215, in end_graph\n    self._executor.end_graph(obj, output, *args, *(kwargs.values()))\nMemoryError: bad allocation\n",
+  "73": [
+    0.019047318026423454,
+    0.018254227936267853
+  ],
+  "74": [
+    0.026640864089131355,
+    0.026514748111367226
+  ],
+  "75": [
+    0.018170757219195366,
+    0.016446786001324654
+  ],
+  "76": [
+    0.03289121016860008,
+    0.03129633888602257
+  ],
+  "77": [
+    0.03037572093307972,
+    0.030355632305145264
+  ],
+  "78": [
+    0.015196599066257477,
+    0.014529178850352764
+  ],
+  "79": [
+    0.03734603151679039,
+    0.035940032452344894
+  ],
+  "80": [
+    0.020762817934155464,
+    0.01971874199807644
+  ],
+  "81": [
+    0.025660334154963493,
+    0.02533993124961853
+  ],
+  "82": [
+    0.025690153241157532,
+    0.02530718594789505
+  ],
+  "83": [
+    0.03482803329825401,
+    0.03477099537849426
+  ],
+  "84": [
+    0.017057616263628006,
+    0.016896622255444527
+  ],
+  "85": [
+    0.025287538766860962,
+    0.02391602098941803
+  ],
+  "86": [
+    0.009971714578568935,
+    0.009863772429525852
+  ],
+  "87": [
+    0.019030136987566948,
+    0.01902935840189457
+  ],
+  "88": [
+    0.02796618640422821,
+    0.02749130129814148
+  ],
+  "89": [
+    0.022565916180610657,
+    0.022337904199957848
+  ],
+  "90": [
+    0.014945778995752335,
+    0.01490557286888361
+  ],
+  "91": [
+    0.014230904169380665,
+    0.013779000379145145
+  ],
+  "92": [
+    0.018350128084421158,
+    0.01677515171468258
+  ],
+  "93": [
+    0.015317857265472412,
+    0.015311481431126595
+  ],
+  "94": [
+    0.021495603024959564,
+    0.0211489275097847
+  ],
+  "95": [
+    0.02339269407093525,
+    0.02205466665327549
+  ],
+  "96": [
+    0.01671723462641239,
+    0.016717111691832542
+  ],
+  "97": [
+    0.02972443215548992,
+    0.028373098000884056
+  ],
+  "98": [
+    0.02350199967622757,
+    0.02245073765516281
+  ],
+  "99": [
+    0.020853720605373383,
+    0.02082272805273533
+  ],
+  "100": [
+    0.018537361174821854,
+    0.01788945309817791
+  ],
+  "101": [
+    0.027385525405406952,
+    0.026704207062721252
+  ],
+  "102": [
+    0.02001098357141018,
+    0.019590523093938828
+  ],
+  "103": [
+    0.04026447609066963,
+    0.039191246032714844
+  ],
+  "104": [
+    0.017388567328453064,
+    0.01738341897726059
+  ],
+  "105": [
+    0.018452612683176994,
+    0.018366871401667595
+  ],
+  "106": [
+    0.020681431517004967,
+    0.02025691233575344
+  ],
+  "107": [
+    0.008965278044342995,
+    0.008913698606193066
+  ],
+  "108": [
+    0.017625389620661736,
+    0.017623482272028923
+  ],
+  "109": [
+    0.02415558695793152,
+    0.02309398166835308
+  ],
+  "110": [
+    0.015662815421819687,
+    0.01566089317202568
+  ],
+  "111": [
+    0.027105020359158516,
+    0.02695704810321331
+  ],
+  "112": [
+    0.01812697947025299,
+    0.018104471266269684
+  ],
+  "113": [
+    0.018927762284874916,
+    0.01847606711089611
+  ],
+  "114": [
+    0.027854837477207184,
+    0.027598394080996513
+  ],
+  "115": [
+    0.018722940236330032,
+    0.017921265214681625
+  ],
+  "116": [
+    0.020194923505187035,
+    0.019830290228128433
+  ],
+  "117": [
+    0.017855823040008545,
+    0.017839984968304634
+  ],
+  "118": [
+    0.012686376459896564,
+    0.012089031748473644
+  ],
+  "119": [
+    0.025075772777199745,
+    0.022670147940516472
+  ],
+  "120": [
+    0.027031082659959793,
+    0.02703014202415943
+  ],
+  "121": [
+    0.020270874723792076,
+    0.020068198442459106
+  ],
+  "122": [
+    0.022555235773324966,
+    0.0225265733897686
+  ],
+  "123": [
+    0.018924174830317497,
+    0.018855435773730278
+  ],
+  "124": [
+    0.01530220452696085,
+    0.01430954784154892
+  ],
+  "125": [
+    0.01077123824506998,
+    0.010456115007400513
+  ],
+  "126": "Traceback (most recent call last):\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\stats_aekl.py\", line 35, in stats\n    x, x_hat = infer_func(model, img)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 904, in infer_autoencoder_kl\n    X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 702, in __call__\n    _pynative_executor.end_graph(self, output, *args, **kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\common\\api.py\", line 1215, in end_graph\n    self._executor.end_graph(obj, output, *args, *(kwargs.values()))\nMemoryError: bad allocation\n",
+  "127": [
+    0.02631312608718872,
+    0.026212729513645172
+  ],
+  "128": [
+    0.03126610442996025,
+    0.030669013038277626
+  ],
+  "129": [
+    0.02249876968562603,
+    0.022216306999325752
+  ],
+  "130": [
+    0.013479704037308693,
+    0.01347955409437418
+  ],
+  "131": [
+    0.022413181141018867,
+    0.022046267986297607
+  ],
+  "132": [
+    0.04456530883908272,
+    0.043750450015068054
+  ],
+  "133": [
+    0.04270702227950096,
+    0.04267284274101257
+  ],
+  "134": [
+    0.02155841886997223,
+    0.020807458087801933
+  ],
+  "135": [
+    0.020922044292092323,
+    0.020655067637562752
+  ],
+  "136": [
+    0.018091192469000816,
+    0.017903495579957962
+  ],
+  "137": [
+    0.004782253876328468,
+    0.004685440566390753
+  ],
+  "138": [
+    0.0219695083796978,
+    0.021452009677886963
+  ],
+  "139": [
+    0.025453902781009674,
+    0.02518867701292038
+  ],
+  "140": [
+    0.025608496740460396,
+    0.025078007951378822
+  ],
+  "141": [
+    0.011141639202833176,
+    0.010454289615154266
+  ],
+  "142": [
+    0.019601603969931602,
+    0.019161030650138855
+  ],
+  "143": [
+    0.010722559876739979,
+    0.010575538501143456
+  ],
+  "144": [
+    0.018653519451618195,
+    0.018646346405148506
+  ],
+  "145": [
+    0.026042519137263298,
+    0.025929400697350502
+  ],
+  "146": [
+    0.016845759004354477,
+    0.016684357076883316
+  ],
+  "147": [
+    0.02723833918571472,
+    0.02689722739160061
+  ],
+  "148": [
+    0.021353555843234062,
+    0.02088742144405842
+  ],
+  "149": [
+    0.030206529423594475,
+    0.030206454917788506
+  ],
+  "150": [
+    0.01798311434686184,
+    0.01652964949607849
+  ],
+  "151": [
+    0.023448651656508446,
+    0.023257441818714142
+  ],
+  "152": "Traceback (most recent call last):\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\stats_aekl.py\", line 35, in stats\n    x, x_hat = infer_func(model, img)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 904, in infer_autoencoder_kl\n    X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 858, in construct\n    posterior = self.encode(x)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 841, in encode\n    h = self.encoder(x)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 665, in construct\n    sample = down_block(sample)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 449, in construct\n    hidden_states = downsampler(hidden_states)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 234, in construct\n    assert hidden_states.shape[1] == self.channels\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\common\\_stub_tensor.py\", line 85, in shape\n    self.stub_shape = self.stub.get_shape()\nMemoryError: bad allocation\n",
+  "153": [
+    0.021022245287895203,
+    0.020956560969352722
+  ],
+  "154": [
+    0.0338706411421299,
+    0.033004481345415115
+  ],
+  "155": [
+    0.019152766093611717,
+    0.01913796365261078
+  ],
+  "156": [
+    0.037635065615177155,
+    0.037433382123708725
+  ],
+  "157": [
+    0.01687007211148739,
+    0.01653820089995861
+  ],
+  "158": [
+    0.013218126259744167,
+    0.012621858157217503
+  ],
+  "159": [
+    0.015378409065306187,
+    0.01466748584061861
+  ],
+  "160": [
+    0.027441585436463356,
+    0.027439923956990242
+  ],
+  "161": [
+    0.011603697203099728,
+    0.011429321020841599
+  ],
+  "162": [
+    0.08388674259185791,
+    0.0838240385055542
+  ],
+  "163": [
+    0.04763064906001091,
+    0.04684349521994591
+  ],
+  "164": [
+    0.022546574473381042,
+    0.02168688178062439
+  ],
+  "165": [
+    0.029198793694376945,
+    0.0288099218159914
+  ],
+  "166": [
+    0.017123742029070854,
+    0.016780951991677284
+  ],
+  "167": [
+    0.020517216995358467,
+    0.01984385773539543
+  ],
+  "168": [
+    0.015796350315213203,
+    0.015552368946373463
+  ],
+  "169": [
+    0.005377992056310177,
+    0.004985777195543051
+  ],
+  "170": [
+    0.01693596877157688,
+    0.016925480216741562
+  ],
+  "171": [
+    0.030063509941101074,
+    0.027025146409869194
+  ],
+  "172": [
+    0.05163031443953514,
+    0.05148676782846451
+  ],
+  "173": [
+    0.025523778051137924,
+    0.025487679988145828
+  ],
+  "174": [
+    0.02180405706167221,
+    0.021587489172816277
+  ],
+  "175": [
+    0.02810538560152054,
+    0.027945881709456444
+  ],
+  "176": "Traceback (most recent call last):\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\stats_aekl.py\", line 35, in stats\n    x, x_hat = infer_func(model, img)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 904, in infer_autoencoder_kl\n    X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 858, in construct\n    posterior = self.encode(x)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 841, in encode\n    h = self.encoder(x)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 665, in construct\n    sample = down_block(sample)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 449, in construct\n    hidden_states = downsampler(hidden_states)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 234, in construct\n    assert hidden_states.shape[1] == self.channels\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\common\\_stub_tensor.py\", line 85, in shape\n    self.stub_shape = self.stub.get_shape()\nMemoryError: bad allocation\n",
+  "177": [
+    0.010317583568394184,
+    0.010317583568394184
+  ],
+  "178": [
+    0.024431729689240456,
+    0.024301715195178986
+  ],
+  "179": [
+    0.042095694690942764,
+    0.0404730923473835
+  ],
+  "180": [
+    0.022299280390143394,
+    0.022284511476755142
+  ],
+  "181": [
+    0.02434253692626953,
+    0.023780547082424164
+  ],
+  "182": [
+    0.019384333863854408,
+    0.019275818020105362
+  ],
+  "183": [
+    0.019985325634479523,
+    0.019985005259513855
+  ],
+  "184": [
+    0.019943369552493095,
+    0.018559768795967102
+  ],
+  "185": [
+    0.05137721821665764,
+    0.05136331915855408
+  ],
+  "186": [
+    0.013831139542162418,
+    0.013824449852108955
+  ],
+  "187": [
+    0.06448052078485489,
+    0.06443271040916443
+  ],
+  "188": [
+    0.022428445518016815,
+    0.02208775095641613
+  ],
+  "189": [
+    0.02612406760454178,
+    0.025071315467357635
+  ],
+  "190": [
+    0.0174423698335886,
+    0.01743956096470356
+  ],
+  "191": [
+    0.017878741025924683,
+    0.01780804432928562
+  ],
+  "192": [
+    0.018141286447644234,
+    0.01805041916668415
+  ],
+  "193": [
+    0.04329919442534447,
+    0.041005078703165054
+  ],
+  "194": [
+    0.0269820187240839,
+    0.026949148625135422
+  ],
+  "195": [
+    0.01728782430291176,
+    0.01596607081592083
+  ],
+  "196": [
+    0.027647219598293304,
+    0.027323372662067413
+  ],
+  "197": [
+    0.021618371829390526,
+    0.02014973573386669
+  ],
+  "198": [
+    0.025469249114394188,
+    0.025338204577565193
+  ],
+  "199": [
+    0.030164411291480064,
+    0.028118932619690895
+  ],
+  "200": [
+    0.034249719232320786,
+    0.034043509513139725
+  ],
+  "201": [
+    0.046878691762685776,
+    0.045958761125802994
+  ],
+  "202": [
+    0.02485918439924717,
+    0.022156275808811188
+  ],
+  "203": [
+    0.024362675845623016,
+    0.023707663640379906
+  ],
+  "204": [
+    0.02881239354610443,
+    0.028706001117825508
+  ],
+  "205": [
+    0.0160240288823843,
+    0.015973348170518875
+  ],
+  "206": [
+    0.021369554102420807,
+    0.021095916628837585
+  ],
+  "207": [
+    0.01433956902474165,
+    0.013682589866220951
+  ],
+  "208": [
+    0.021876491606235504,
+    0.021828457713127136
+  ],
+  "209": [
+    0.020749440416693687,
+    0.02016419544816017
+  ],
+  "210": [
+    0.01818193309009075,
+    0.01776222325861454
+  ],
+  "211": [
+    0.024300575256347656,
+    0.023797480389475822
+  ],
+  "212": [
+    0.01802941784262657,
+    0.017573995515704155
+  ],
+  "213": [
+    0.019747259095311165,
+    0.019577665254473686
+  ],
+  "214": [
+    0.02040739730000496,
+    0.018638059496879578
+  ],
+  "215": [
+    0.03892732784152031,
+    0.03876893222332001
+  ],
+  "216": [
+    0.03710973635315895,
+    0.03406086191534996
+  ],
+  "217": [
+    0.017847999930381775,
+    0.017743490636348724
+  ],
+  "218": [
+    0.04112078621983528,
+    0.04084286466240883
+  ],
+  "219": [
+    0.026117408648133278,
+    0.02426137775182724
+  ],
+  "220": [
+    0.021259505301713943,
+    0.02108573354780674
+  ],
+  "221": [
+    0.032470058649778366,
+    0.03235793858766556
+  ],
+  "222": [
+    0.0333927646279335,
+    0.03173220530152321
+  ],
+  "223": [
+    0.02660982869565487,
+    0.026012321934103966
+  ],
+  "224": [
+    0.03382498770952225,
+    0.03274380788207054
+  ],
+  "225": [
+    0.023431215435266495,
+    0.023431215435266495
+  ],
+  "226": [
+    0.0495355948805809,
+    0.04883705824613571
+  ],
+  "227": [
+    0.03330346941947937,
+    0.03239395096898079
+  ],
+  "228": [
+    0.028653480112552643,
+    0.02827787771821022
+  ],
+  "229": "Traceback (most recent call last):\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\stats_aekl.py\", line 35, in stats\n    x, x_hat = infer_func(model, img)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 904, in infer_autoencoder_kl\n    X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 858, in construct\n    posterior = self.encode(x)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 841, in encode\n    h = self.encoder(x)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 665, in construct\n    sample = down_block(sample)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 449, in construct\n    hidden_states = downsampler(hidden_states)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 705, in __call__\n    raise err\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 234, in construct\n    assert hidden_states.shape[1] == self.channels\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\common\\_stub_tensor.py\", line 85, in shape\n    self.stub_shape = self.stub.get_shape()\nMemoryError: bad allocation\n",
+  "230": [
+    0.012443316169083118,
+    0.012396185658872128
+  ],
+  "231": [
+    0.026305703446269035,
+    0.022552771493792534
+  ],
+  "232": [
+    0.01894557848572731,
+    0.018494805321097374
+  ],
+  "233": "Traceback (most recent call last):\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\stats_aekl.py\", line 35, in stats\n    x, x_hat = infer_func(model, img)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 904, in infer_autoencoder_kl\n    X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 702, in __call__\n    _pynative_executor.end_graph(self, output, *args, **kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\common\\api.py\", line 1215, in end_graph\n    self._executor.end_graph(obj, output, *args, *(kwargs.values()))\nKeyboardInterrupt\n",
+  "234": "Traceback (most recent call last):\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\stats_aekl.py\", line 35, in stats\n    x, x_hat = infer_func(model, img)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 904, in infer_autoencoder_kl\n    X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 858, in construct\n    posterior = self.encode(x)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 841, in encode\n    h = self.encoder(x)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 665, in construct\n    sample = down_block(sample)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 449, in construct\n    hidden_states = downsampler(hidden_states)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 234, in construct\n    assert hidden_states.shape[1] == self.channels\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\common\\_stub_tensor.py\", line 85, in shape\n    self.stub_shape = self.stub.get_shape()\nKeyboardInterrupt\n",
+  "235": "Traceback (most recent call last):\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\stats_aekl.py\", line 35, in stats\n    try:\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 904, in infer_autoencoder_kl\n    X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 863, in construct\n    dec = self.decode(z)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 848, in decode\n    dec = self.decoder(z)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 741, in construct\n    sample = up_block(sample)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 392, in construct\n    hidden_states = resnet(hidden_states, temb=None)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 321, in construct\n    hidden_states = self.norm1(hidden_states)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\layer\\normalization.py\", line 1188, in construct\n    self._check_input_dim(F.shape(x), self.cls_name)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\ops\\function\\array_func.py\", line 1509, in shape\n    return shape_(input_x)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\ops\\operations\\array_ops.py\", line 701, in __call__\n    return x.shape\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\common\\_stub_tensor.py\", line 85, in shape\n    self.stub_shape = self.stub.get_shape()\nKeyboardInterrupt\n",
+  "236": "Traceback (most recent call last):\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\stats_aekl.py\", line 35, in stats\n    try:\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 904, in infer_autoencoder_kl\n    X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 858, in construct\n    posterior = self.encode(x)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 841, in encode\n    h = self.encoder(x)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 665, in construct\n    sample = down_block(sample)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 449, in construct\n    hidden_states = downsampler(hidden_states)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 234, in construct\n    assert hidden_states.shape[1] == self.channels\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\common\\_stub_tensor.py\", line 85, in shape\n    self.stub_shape = self.stub.get_shape()\nKeyboardInterrupt\n",
+  "237": "Traceback (most recent call last):\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\stats_aekl.py\", line 35, in stats\n    try:\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 904, in infer_autoencoder_kl\n    X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 863, in construct\n    dec = self.decode(z)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 848, in decode\n    dec = self.decoder(z)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 738, in construct\n    sample = self.mid_block(sample)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 593, in construct\n    hidden_states = attn(hidden_states)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 701, in __call__\n    output = self._run_construct(args, kwargs)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\nn\\cell.py\", line 482, in _run_construct\n    output = self.construct(*cast_inputs, **kwargs)\n  File \"C:\\Workspace\\@Contest\\AIGC图像对战现实-AI生成图像与真实图像二分类挑战赛\\models\\aekl.py\", line 504, in construct\n    attention_scores = F.matmul(query_states * scale, key_states.swapaxes(-1, -2) * scale)  # TODO: use baddmm\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\ops\\function\\math_func.py\", line 9690, in matmul\n    input = _broadcast_to(input, shape1_aligned[:-2], shape_backbone, ndim_aligned)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\ops\\function\\math_func.py\", line 9597, in _broadcast_to\n    F.stop_gradient(size)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\ops\\function\\grad\\grad_func.py\", line 1402, in stop_gradient\n    return P.StopGradient()(value)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\ops\\primitive.py\", line 314, in __call__\n    return _run_op(self, self.name, args)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\ops\\primitive.py\", line 913, in _run_op\n    stub = _pynative_executor.run_op_async(obj, op_name, args)\n  File \"C:\\Miniconda3\\envs\\ms\\lib\\site-packages\\mindspore\\common\\api.py\", line 1186, in run_op_async\n    return self._executor.run_op_async(*args)\nKeyboardInterrupt\n"
+}

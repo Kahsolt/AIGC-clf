@@ -8,7 +8,7 @@ from models.aekl import get_sd_vae_ft_ema, get_sd_vae_ft_mse, infer_autoencoder_
 
 
 def stats():
-  app = 1
+  app = 0
   if app == 0:
     model_func = get_sd_vae_ft_ema
     infer_func = infer_autoencoder_kl
