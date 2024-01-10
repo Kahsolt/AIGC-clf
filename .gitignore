@@ -12,3 +12,6 @@ repo/*
 
 # ref
 ref/
+
+# logs
+lightning_logs/

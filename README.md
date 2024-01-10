@@ -18,6 +18,15 @@ Team Name: 你这图保真吗
 | [sdxl-detector](https://huggingface.co/Organika/sdxl-detector) | 56.62898% | swin clf |
 | [sd-vae-ft-mse](https://huggingface.co/stabilityai/sd-vae-ft-mse) | 70.7086% | aekl + clf |
 
+⚪ resnet18 finetuned (based on `AI-generated-art-classifier`)
+
+| dtype | pAcc | comment |
+| :-: | :-: | :-: |
+| fp32 | 99.79445% | overfit all data |
+| fp32 | 89.20863% | split 7:3 |
+| fp16 | 90.54471% | split 7:3 |
+| bf16 | 89.92806% | split 7:3 |
+
 
 ### Quickstart
 

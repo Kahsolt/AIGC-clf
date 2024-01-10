@@ -8,12 +8,15 @@ from PIL import Image
 from tqdm import tqdm
 
 from models import *
-from utils import *
+from utils_ms import *
 
 
 def predict(args):
-  app = 0
-  if app == 0:
+  app = -1
+  if app == -1:
+    model_func = get_resnet18_finetuned_ai_art_finetune
+    infer_func = infer_resnet
+  elif app == 0:
     model_func = get_resnet18_finetuned_ai_art
     infer_func = infer_resnet
   elif app == 1:

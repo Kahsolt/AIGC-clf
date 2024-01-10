@@ -264,6 +264,10 @@ def get_resnet18_finetuned_ai_art() -> ResNetForImageClassification:
     return get_app('artfan123#resnet-18-finetuned-ai-art')
 
 
+def get_resnet18_finetuned_ai_art_finetune() -> ResNetForImageClassification:
+    return get_app('artfan123#resnet-18-finetuned-ai-art_finetune')
+
+
 if __name__ == '__main__':
     model = get_resnet18_finetuned_ai_art()
     print(model)
