@@ -19,6 +19,8 @@ from torch import Tensor
 import torchvision.transforms as T
 from lightning import seed_everything
 
+torch.backends.cudnn.enabled = True
+torch.backends.cudnn.benchmark = False
 torch.set_float32_matmul_precision('medium')
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 seed_everything(42)

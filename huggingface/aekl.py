@@ -908,11 +908,17 @@ def infer_autoencoder_kl(model:AutoencoderKL, img:PILImage, forward_func:Callabl
     return X, X_hat
 
 
-def infer_autoencoder_kl_with_latent_noise(model:AutoencoderKL, img:PILImage, eps:float=1e-5) -> Tuple[Tensor, Tensor]:
+def infer_autoencoder_kl_with_latent_noise(model:AutoencoderKL, img:PILImage, how:str='randn', eps:float=1e-5) -> Tuple[Tensor, Tensor]:
     def forward_hijack(self:AutoencoderKL, x:Tensor) -> Tensor:
         posterior = self.encode(x)
-        z = posterior.mode()
-        z += torch.randn_like(z) * eps
+        if how == 'sample':
+            z = posterior.sample()
+        else:
+            z = posterior.mode()    # vrng [-30.0, 20.0]
+            if how == 'randu':
+                z += (torch.rand_like(z) * 2 - 1) * eps
+            elif how == 'randn':
+                z += torch.randn_like(z) * eps
         return self.decode(z)
     return infer_autoencoder_kl(model, img, forward_hijack)
 

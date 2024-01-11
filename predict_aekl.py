@@ -9,19 +9,35 @@ from utils import *
 
 @torch.inference_mode()
 def stats():
-  app = 1
+  app = 6
   if app == 0:
-    model_func = get_sd_vae_ft_ema
-    infer_func = infer_autoencoder_kl
-    exp_name = 'aekl_ema'
-  elif app == 1:
     model_func = get_sd_vae_ft_mse
     infer_func = infer_autoencoder_kl
     exp_name = 'aekl_mse'
-  if app == 2:
+  elif app == 1:
     model_func = get_sd_vae_ft_ema
-    infer_func = lambda model, img: infer_autoencoder_kl_with_latent_noise(model, img, 1e-3)
-    exp_name = 'aekl_ema_noise'
+    infer_func = infer_autoencoder_kl
+    exp_name = 'aekl_ema'
+  elif app == 2:
+    model_func = get_sd_vae_ft_ema
+    infer_func = lambda model, img: infer_autoencoder_kl_with_latent_noise(model, img, 'sample')
+    exp_name = 'aekl_ema_sample'
+  elif app == 3:
+    model_func = get_sd_vae_ft_ema
+    infer_func = lambda model, img: infer_autoencoder_kl_with_latent_noise(model, img, 'randn', 1e-3)
+    exp_name = 'aekl_ema_noise-randn_1e-3'
+  elif app == 4:
+    model_func = get_sd_vae_ft_ema
+    infer_func = lambda model, img: infer_autoencoder_kl_with_latent_noise(model, img, 'randu', 1e-3)
+    exp_name = 'aekl_ema_noise-randu_1e-3'
+  elif app == 5:
+    model_func = get_sd_vae_ft_ema
+    infer_func = lambda model, img: infer_autoencoder_kl_with_latent_noise(model, img, 'randu', 1e-1)
+    exp_name = 'aekl_ema_noise-randu_1e-1'
+  elif app == 6:
+    model_func = get_sd_vae_ft_ema
+    infer_func = lambda model, img: infer_autoencoder_kl_with_latent_noise(model, img, 'randu', 1)
+    exp_name = 'aekl_ema_noise-randu_1'
 
   truth = load_truth()
   model = model_func().to(device)
@@ -39,6 +55,7 @@ def stats():
     err1 = loss_fn(x, x_hat.clip(0, 1))
     db[i] = (err0, err1)
     print(f'[{i}] truth', truth[i], 'err:', db[i])
+    if i % 10 == 0: save_db(db, db_file)
 
   save_db(db, db_file)
 

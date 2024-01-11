@@ -14,9 +14,6 @@ from utils import *
 # https://zhuanlan.zhihu.com/p/457516369
 
 EPOCHS = 10
-X_FILE = OUT_PATH / 'X.npy'
-Y_FILE = OUT_PATH / 'Y.npy'
-
 
 class MyNet(nn.Cell):
     
@@ -28,8 +25,9 @@ class MyNet(nn.Cell):
     return self.fc(x)
 
 
-X = np.load(X_FILE)
-Y = np.load(Y_FILE)
+preds = list(load_db(RESULT_FILE).values())
+X = np.stack(preds, axis=0)
+Y = np.asarray(load_truth())
 dataset = GeneratorDataset(zip(X, Y), column_names=['data', 'label'])
 dataloader = dataset.batch(32)
 net = MyNet().set_train()

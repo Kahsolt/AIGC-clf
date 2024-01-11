@@ -32,7 +32,7 @@ def stats():
   fps = get_test_fps()
 
   for i, fp in enumerate(tqdm(fps)):
-    if str(i) in db: continue
+    if str(i) in db and type(db[str(i)]) != str: continue
     img = Image.open(fp).convert('RGB')
     logits, probs, pred = infer_func(model, img, debug=True)
     db[i] = {
@@ -42,6 +42,7 @@ def stats():
       'ok': truth[i] == 1 - pred,   # swap 0-1
     }
     print(f'[{i}] res:', db[i])
+    if i % 10 == 0: save_db(db, db_file)
 
   save_db(db, db_file)
   print(f'>> pAcc: {sum(rec["ok"] for rec in db.values()) / len(db):.5%}')
