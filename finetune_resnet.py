@@ -81,7 +81,10 @@ class LitModel(LightningModule):
     )
 
   def configure_optimizers(self):
-    return SGD(self.parameters(), lr=LR, momentum=MOMENTUM)
+    params = [
+      {'params': self.parameters(), 'lr': LR},
+    ]
+    return SGD(params, momentum=MOMENTUM)
 
   def training_step(self, batch:Tuple[Tensor], batch_idx:int) -> Tensor:
     x, y = batch

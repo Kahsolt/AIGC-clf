@@ -212,9 +212,9 @@ def infer_resnet(model:ResNetForImageClassification, img:PILImage, debug:bool=Fa
     X = transform(img)
     X = X.to(device, torch.float32)
     logits = model(X.unsqueeze(0)).squeeze(0)
-    probs = F.softmax(logits, axis=-1)
+    probs = F.softmax(logits, dim=-1)
     pred = torch.argmax(probs).item()
-    return (logits.numpy().tolist(), probs.numpy().tolist(), pred) if debug else pred
+    return (logits.cpu().numpy().tolist(), probs.cpu().numpy().tolist(), pred) if debug else pred
 
 
 def get_app(app_name:str) -> ResNetForImageClassification:

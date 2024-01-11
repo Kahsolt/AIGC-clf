@@ -4,13 +4,14 @@
 
 from huggingface.resnet import get_resnet18_finetuned_ai_art, infer_resnet
 from huggingface.swin import get_AI_image_detector, get_xl_detector, infer_swin
+from huggingface.aekl_clf import get_aekl_clf, infer_aekl_clf
 from huggingface.utils import *
 from utils import *
 
 
 @torch.inference_mode()
 def stats():
-  app = 0
+  app = 3
   if app == 0:
     model_func = get_resnet18_finetuned_ai_art
     infer_func = infer_resnet
@@ -23,9 +24,13 @@ def stats():
     model_func = get_xl_detector
     infer_func = infer_swin
     exp_name = 'swin_sdxl'
+  elif app == 3:
+    model_func = get_aekl_clf
+    infer_func = infer_aekl_clf
+    exp_name = 'aekl_clf'
 
   truth = load_truth()
-  model = model_func()
+  model = model_func().to(device)
 
   db_file = OUT_PATH / f'stats_{exp_name}.json'
   db = load_db(db_file)
