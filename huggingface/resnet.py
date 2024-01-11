@@ -2,22 +2,12 @@
 # Author: Armit
 # Create Time: 2024/01/03 
 
-import torch
-import torch.nn as nn
-from torch import Tensor
+from huggingface.utils import *
 
-
-ACT2FN = {
-    "gelu": nn.GELU(),
-    "linear": nn.Identity(),
-    "mish": nn.Mish(),
-    "relu": nn.ReLU(),
-    "relu6": nn.ReLU6(),
-    "sigmoid": nn.Sigmoid(),
-    "silu": nn.SiLU(),
-    "swish": nn.SiLU(),
-    "tanh": nn.Tanh(),
-}
+transform = T.Compose([
+    T.ToTensor(),
+    T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+])
 
 
 class ResNetConfig:
@@ -218,27 +208,42 @@ class ResNetForImageClassification(nn.Module):
         return logits
 
 
-if __name__ == '__main__':
-    import json
-    from pathlib import Path
-    import numpy as np
+def infer_resnet(model:ResNetForImageClassification, img:PILImage, debug:bool=False) -> Union[int, Tuple[float, float], Tuple[int, int], Tuple[int]]:
+    X = transform(img)
+    X = X.to(device, torch.float32)
+    logits = model(X.unsqueeze(0)).squeeze(0)
+    probs = F.softmax(logits, axis=-1)
+    pred = torch.argmax(probs).item()
+    return (logits.numpy().tolist(), probs.numpy().tolist(), pred) if debug else pred
 
-    HF_PATH = Path(__file__).parent
-    APP_PATH = HF_PATH / 'artfan123#resnet-18-finetuned-ai-art'
+
+def get_app(app_name:str) -> ResNetForImageClassification:
+    APP_PATH = HF_PATH / app_name
     CONFIG_FILE = APP_PATH / 'model.json'
     WEIGHT_FILE = APP_PATH / 'model.npz'
 
     with open(CONFIG_FILE) as fh:
         cfg = json.load(fh)
     config = ResNetConfig(**cfg)
-
     model = ResNetForImageClassification(config)
     model = model.eval()
     weights = np.load(WEIGHT_FILE)
     state_dict = {k: torch.from_numpy(v) for k, v in weights.items()}
     model.load_state_dict(state_dict)
-    print(model)
+    return model
 
+
+def get_resnet18_finetuned_ai_art() -> ResNetForImageClassification:
+    return get_app('artfan123#resnet-18-finetuned-ai-art')
+
+
+def get_resnet18_finetuned_ai_art_finetune() -> ResNetForImageClassification:
+    return get_app('artfan123#resnet-18-finetuned-ai-art_finetune')
+
+
+if __name__ == '__main__':
+    model = get_resnet18_finetuned_ai_art()
+    print(model)
     X = torch.zeros([1, 3, 224, 224])
     logits = model(X)
     print(logits)

@@ -674,7 +674,7 @@ def param_dict_name_mapping(kv:Dict[str, Parameter]) -> Dict[str, Parameter]:
     return new_kv
 
 
-def infer_swin(model:nn.Cell, img:PILImage, debug:bool=False) -> Union[int, Tuple[float, float], Tuple[int, int], Tuple[int]]:
+def infer_swin(model:SwinForImageClassification, img:PILImage, debug:bool=False) -> Union[int, Tuple[float, float], Tuple[int, int], Tuple[int]]:
     X = transform(img)[0]   # do not know why this returns a ndarray tuple
     X = Tensor.from_numpy(X).astype(ms.float32)
     logits = model(X.unsqueeze(0)).squeeze(0)

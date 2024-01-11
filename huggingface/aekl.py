@@ -2,14 +2,11 @@
 # Author: Armit
 # Create Time: 2024/01/04 
 
-import math
-from functools import partial
-from typing import *
+from huggingface.utils import *
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch import Tensor
+transform = T.Compose([
+    T.ToTensor(),
+])
 
 
 def get_down_block(
@@ -883,14 +880,45 @@ class AutoencoderKL(nn.Module):
         return dec
 
 
-if __name__ == '__main__':
-    import json
-    from pathlib import Path
-    import numpy as np
+def infer_autoencoder_kl(model:AutoencoderKL, img:PILImage, forward_func:Callable=None) -> Tuple[Tensor, Tensor]:
+    def pad(x:Tensor, opt_C:int=8) -> Tuple[Tensor, Tuple[int]]:
+        C, H, W = x.shape
+        H_pad = math.ceil(H / opt_C) * opt_C - H
+        W_pad = math.ceil(W / opt_C) * opt_C - W
+        pL, pR, pT, pB = W_pad//2, W_pad-W_pad//2, H_pad//2, H_pad-H_pad//2
+        if max(pL, pR, pT, pB) > 0:
+            x = F.pad(x, (pL, pR, pT, pB), mode='reflect')
+        return x, (pL, pR, pT, pB)
+    def unpad(x:Tensor, pads:Tuple[int]) -> Tensor:
+        pL, pR, pT, pB = pads
+        if max(pL, pR, pT, pB) > 0:
+            sH = slice(pT, -pB if pB else None)
+            sW = slice(pL, -pR if pR else None)
+            x = x[:, sH, sW]
+        return x
 
-    HF_PATH = Path(__file__).parent
-    APP_PATH = HF_PATH / 'stabilityai#sd-vae-ft-ema'
-    #APP_PATH = HF_PATH / 'stabilityai#sd-vae-ft-mse'
+    X = transform(img)
+    X = X.to(device, torch.float32)
+    X_pad, pads = pad(X)
+    if forward_func:
+        X_pad_hat = forward_func(model, X_pad.unsqueeze(0)).squeeze(0)
+    else:
+        X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)
+    X_hat = unpad(X_pad_hat, pads)
+    return X, X_hat
+
+
+def infer_autoencoder_kl_with_latent_noise(model:AutoencoderKL, img:PILImage, eps:float=1e-5) -> Tuple[Tensor, Tensor]:
+    def forward_hijack(self:AutoencoderKL, x:Tensor) -> Tensor:
+        posterior = self.encode(x)
+        z = posterior.mode()
+        z += torch.randn_like(z) * eps
+        return self.decode(z)
+    return infer_autoencoder_kl(model, img, forward_hijack)
+
+
+def get_app(app_name:str) -> AutoencoderKL:
+    APP_PATH = HF_PATH / app_name
     CONFIG_FILE = APP_PATH / 'model.json'
     WEIGHT_FILE = APP_PATH / 'model.npz'
 
@@ -901,8 +929,20 @@ if __name__ == '__main__':
     weights = np.load(WEIGHT_FILE)
     state_dict = {k: torch.from_numpy(v) for k, v in weights.items()}
     model.load_state_dict(state_dict)
-    print(model)
+    return model
 
+
+def get_sd_vae_ft_ema() -> AutoencoderKL:
+    return get_app('stabilityai#sd-vae-ft-ema')
+
+
+def get_sd_vae_ft_mse() -> AutoencoderKL:
+    return get_app('stabilityai#sd-vae-ft-mse')
+
+
+if __name__ == '__main__':
+    model = get_sd_vae_ft_ema()
+    print(model)
     X = torch.ones([1, 3, 224, 224]) * 0.5
     X_hat = model(X)
     print(X_hat.shape)

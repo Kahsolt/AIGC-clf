@@ -2,10 +2,14 @@
 # Author: Armit
 # Create Time: 2024/01/09 
 
+import mindspore as ms
+import mindspore.nn as nn
+from mindspore import Tensor
 from mindspore.dataset import GeneratorDataset
 from mindspore.train.callback import LossMonitor
+ms.set_context(mode=ms.PYNATIVE_MODE, device_target='CPU')
 
-from utils_ms import *
+from utils import *
 
 # https://zhuanlan.zhihu.com/p/457516369
 

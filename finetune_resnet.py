@@ -2,14 +2,16 @@
 # Author: Armit
 # Create Time: 2024/01/09 
 
+from shutil import copy2
+
 from torch.optim import SGD
 from torch.utils.data import Dataset
 import torchvision.transforms as T
 from lightning import LightningModule, LightningDataModule, Trainer
 
-from utils_tc import *
-
 from huggingface.resnet import ResNetConfig, ResNetForImageClassification
+from huggingface.utils import *
+from utils import *
 
 SRC_PATH = HF_PATH / 'artfan123#resnet-18-finetuned-ai-art'
 DST_PATH = HF_PATH / 'artfan123#resnet-18-finetuned-ai-art_finetune' ; DST_PATH.mkdir(exist_ok=True)

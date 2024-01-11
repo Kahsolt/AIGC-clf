@@ -2,26 +2,13 @@
 # Author: Armit
 # Create Time: 2024/01/04 
 
-import math
-import collections
-from typing import *
+from huggingface.utils import *
 
-import torch
-import torch.nn as nn
-from torch import Tensor
-
-
-ACT2FN = {
-    "gelu": nn.GELU(),
-    "linear": nn.Identity(),
-    "mish": nn.Mish(),
-    "relu": nn.ReLU(),
-    "relu6": nn.ReLU6(),
-    "sigmoid": nn.Sigmoid(),
-    "silu": nn.SiLU(),
-    "swish": nn.SiLU(),
-    "tanh": nn.Tanh(),
-}
+transform = T.Compose([
+    T.RandomResizedCrop(size=(244, 244)),
+    T.ToTensor(),
+    T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+])
 
 
 class SwinConfig:
@@ -620,28 +607,43 @@ class SwinForImageClassification(nn.Module):
         return logits
 
 
-if __name__ == '__main__':
-    import json
-    from pathlib import Path
-    import numpy as np
+def infer_swin(model:SwinForImageClassification, img:PILImage, debug:bool=False) -> Union[int, Tuple[float, float], Tuple[int, int], Tuple[int]]:
+    X = transform(img)
+    X = X.to(device, torch.float32)
+    logits = model(X.unsqueeze(0)).squeeze(0)
+    probs = F.softmax(logits, axis=-1)
+    pred = torch.argmax(probs).item()
+    return (logits.numpy().tolist(), probs.numpy().tolist(), pred) if debug else pred
 
-    HF_PATH = Path(__file__).parent
-    APP_PATH = HF_PATH / 'umm-maybe#AI-image-detector'
-    #APP_PATH = HF_PATH / 'Organikasd#xl-detector'
+
+def get_app(app_name:str) -> SwinForImageClassification:
+    APP_PATH = HF_PATH / app_name
     CONFIG_FILE = APP_PATH / 'model.json'
     WEIGHT_FILE = APP_PATH / 'model.npz'
 
     with open(CONFIG_FILE) as fh:
         cfg = json.load(fh)
     config = SwinConfig(**cfg)
-
     model = SwinForImageClassification(config)
     model = model.eval()
     weights = np.load(WEIGHT_FILE)
     state_dict = {k: torch.from_numpy(v) for k, v in weights.items()}
     model.load_state_dict(state_dict)
-    print(model)
+    return model
 
+
+def get_AI_image_detector() -> SwinForImageClassification:
+    return get_app('umm-maybe#AI-image-detector')
+
+
+def get_xl_detector() -> SwinForImageClassification:
+    return get_app('Organikasd#xl-detector')
+
+
+if __name__ == '__main__':
+    model = get_AI_image_detector()
+    #model = get_xl_detector()
+    print(model)
     X = torch.zeros([1, 3, 224, 224])
     logits = model(X)
     print(logits)

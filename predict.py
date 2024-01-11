@@ -2,13 +2,10 @@
 # Author: Armit
 # Create Time: 2024/01/03 
 
-from pathlib import Path
 from argparse import ArgumentParser
-from PIL import Image
-from tqdm import tqdm
 
 from models import *
-from utils_ms import *
+from utils import *
 
 
 def predict(args):

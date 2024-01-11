@@ -4,10 +4,7 @@
 
 import json
 from pathlib import Path
-from shutil import copy2
 from typing import *
-from traceback import format_exc
-import gc
 
 from tqdm import tqdm
 from PIL import Image

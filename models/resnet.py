@@ -224,7 +224,7 @@ def param_dict_name_mapping(kv:Dict[str, Parameter]) -> Dict[str, Parameter]:
     return new_kv
 
 
-def infer_resnet(model:nn.Cell, img:PILImage, debug:bool=False) -> Union[int, Tuple[float, float], Tuple[int, int], Tuple[int]]:
+def infer_resnet(model:ResNetForImageClassification, img:PILImage, debug:bool=False) -> Union[int, Tuple[float, float], Tuple[int, int], Tuple[int]]:
     X = transform(img)[0]   # do not know why this returns a ndarray tuple
     X = Tensor.from_numpy(X).astype(ms.float32)
     logits = model(X.unsqueeze(0)).squeeze(0)
@@ -234,7 +234,6 @@ def infer_resnet(model:nn.Cell, img:PILImage, debug:bool=False) -> Union[int, Tu
 
 
 def get_app(app_name:str) -> ResNetForImageClassification:
-    HF_PATH = Path(__file__).parent.parent / 'huggingface'
     APP_PATH = HF_PATH / app_name
     CONFIG_FILE = APP_PATH / 'model.json'
     WEIGHT_FILE = APP_PATH / 'model.npz'
@@ -242,7 +241,6 @@ def get_app(app_name:str) -> ResNetForImageClassification:
     with open(CONFIG_FILE) as fh:
         cfg = json.load(fh)
     config = ResNetConfig(**cfg)
-
     model = ResNetForImageClassification(config)
     model = model.set_train(False)
     param_dict = load_npz_as_param_dict(WEIGHT_FILE)

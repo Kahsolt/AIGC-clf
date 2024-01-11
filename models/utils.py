@@ -19,17 +19,21 @@ from mindspore import Tensor, Parameter
 import mindspore.dataset.transforms as T
 import mindspore.dataset.vision.transforms as VT
 
+ms.set_context(mode=ms.PYNATIVE_MODE, device_target='CPU')
+ms.set_seed(42)
+
+HF_PATH = Path(__file__).parent.parent / 'huggingface'
 
 ACT2FN = {
-    "gelu": nn.GELU(),
-    "linear": nn.Identity(),
-    "mish": nn.Mish(),
-    "relu": nn.ReLU(),
-    "relu6": nn.ReLU6(),
-    "sigmoid": nn.Sigmoid(),
-    "silu": nn.SiLU(),
-    "swish": nn.SiLU(),
-    "tanh": nn.Tanh(),
+  "gelu": nn.GELU(),
+  "linear": nn.Identity(),
+  "mish": nn.Mish(),
+  "relu": nn.ReLU(),
+  "relu6": nn.ReLU6(),
+  "sigmoid": nn.Sigmoid(),
+  "silu": nn.SiLU(),
+  "swish": nn.SiLU(),
+  "tanh": nn.Tanh(),
 }
 
 def load_npz_as_param_dict(fp:Path) -> Dict[str, Parameter]:
