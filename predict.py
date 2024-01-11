@@ -11,7 +11,7 @@ from utils import *
 def predict(args):
   app = -1
   if app == -1:
-    model_func = get_resnet18_finetuned_ai_art_finetune
+    model_func = get_resnet18_finetuned_ai_art_ft
     infer_func = infer_resnet
   elif app == 0:
     model_func = get_resnet18_finetuned_ai_art

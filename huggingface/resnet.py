@@ -4,9 +4,25 @@
 
 from huggingface.utils import *
 
+PATCH_SIZE = 224
+
+transform_train = T.Compose([
+  T.RandomResizedCrop((PATCH_SIZE, PATCH_SIZE)),
+  T.RandomHorizontalFlip(),
+  T.RandomVerticalFlip(),
+  T.ToTensor(),
+  T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+])
+
+transform_valid = T.Compose([
+  T.RandomResizedCrop((PATCH_SIZE, PATCH_SIZE)),
+  T.ToTensor(),
+  T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+])
+
 transform = T.Compose([
-    T.ToTensor(),
-    T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+  T.ToTensor(),
+  T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
 ])
 
 
@@ -237,8 +253,8 @@ def get_resnet18_finetuned_ai_art() -> ResNetForImageClassification:
     return get_app('artfan123#resnet-18-finetuned-ai-art')
 
 
-def get_resnet18_finetuned_ai_art_finetune() -> ResNetForImageClassification:
-    return get_app('artfan123#resnet-18-finetuned-ai-art_finetune')
+def get_resnet18_finetuned_ai_art_ft() -> ResNetForImageClassification:
+    return get_app('kahsolt#resnet-18-finetuned-ai-art_ft')
 
 
 if __name__ == '__main__':

@@ -9,6 +9,18 @@ opt_f = 8
 PATCH_SIZE = 256
 LATENT_SIZE = PATCH_SIZE // opt_f
 
+transform_train = T.Compose([
+  T.RandomResizedCrop((PATCH_SIZE, PATCH_SIZE)),
+  T.RandomHorizontalFlip(),
+  T.RandomVerticalFlip(),
+  T.ToTensor(),
+])
+
+transform_valid = T.Compose([
+  T.RandomResizedCrop((PATCH_SIZE, PATCH_SIZE)),
+  T.ToTensor(),
+])
+
 transform = T.Compose([
   T.RandomResizedCrop((PATCH_SIZE, PATCH_SIZE)),
   T.ToTensor(),
@@ -17,12 +29,12 @@ transform = T.Compose([
 
 class AutoencoderKLClassifier(nn.Module):
 
-  def __init__(self, model: AutoencoderKL, latent_size: int):
+  def __init__(self, model: AutoencoderKL):
     super().__init__()
 
     self.model = model
     self.mlp = nn.Sequential(
-      nn.Linear(4 * latent_size * latent_size, 256),
+      nn.Linear(4 * LATENT_SIZE * LATENT_SIZE, 256),
       nn.SiLU(),
       nn.Linear(256, 2),
     )
@@ -43,28 +55,27 @@ def infer_aekl_clf(model:AutoencoderKLClassifier, img:PILImage, debug:bool=False
   return (logits.cpu().numpy().tolist(), probs.cpu().numpy().tolist(), pred) if debug else pred
 
 
-def get_app(app_name:str, model:AutoencoderKL) -> AutoencoderKLClassifier:
-    APP_PATH = HF_PATH / app_name
-    WEIGHT_FILE = APP_PATH / 'model.npz'
+def get_app(app_name:str, model_func:Callable) -> AutoencoderKLClassifier:
+  APP_PATH = HF_PATH / app_name
+  WEIGHT_FILE = APP_PATH / 'model.npz'
 
-    model = AutoencoderKLClassifier(model)
-    model = model.eval()
-    weights = np.load(WEIGHT_FILE)
-    state_dict = {k: torch.from_numpy(v) for k, v in weights.items()}
-    model.load_state_dict(state_dict)
-    return model
+  model: AutoencoderKLClassifier = model_func()
+  model = model.eval()
+  weights = np.load(WEIGHT_FILE)
+  state_dict = {k: torch.from_numpy(v) for k, v in weights.items()}
+  model.load_state_dict(state_dict)
+  return model
 
 
-def get_aekl_clf(latent_size:int):
+def get_aekl_clf():
   aekl = get_sd_vae_ft_ema()
-  model = AutoencoderKLClassifier(aekl, latent_size)
-  return get_app('stabilityai#sd-vae-ft-ema_finetune', model)
+  model_func = lambda: AutoencoderKLClassifier(aekl)
+  return get_app('kahsolt#sd-vae-ft-ema_clf', model_func)
 
 
 if __name__ == '__main__':
-    model = get_aekl_clf()
-    #model = get_xl_detector()
-    print(model)
-    X = torch.zeros([1, 3, 224, 224])
-    logits = model(X)
-    print(logits)
+  model = get_aekl_clf()
+  print(model)
+  X = torch.zeros([1, 3, PATCH_SIZE, PATCH_SIZE])
+  logits = model(X)
+  print(logits)

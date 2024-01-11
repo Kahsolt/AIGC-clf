@@ -4,36 +4,22 @@
 
 from shutil import copy2
 
-from torch.optim import SGD
-from torch.utils.data import Dataset
-import torchvision.transforms as T
-from lightning import LightningModule, LightningDataModule, Trainer
+from torch.optim import SGD, Adam
+from torch.utils.data import Dataset, DataLoader
+from lightning import LightningModule, Trainer
 
-from huggingface.resnet import ResNetConfig, ResNetForImageClassification
+from huggingface.resnet import get_resnet18_finetuned_ai_art, ResNetForImageClassification, transform_train, transform_valid
 from huggingface.utils import *
 from utils import *
 
 SRC_PATH = HF_PATH / 'artfan123#resnet-18-finetuned-ai-art'
-DST_PATH = HF_PATH / 'artfan123#resnet-18-finetuned-ai-art_finetune' ; DST_PATH.mkdir(exist_ok=True)
-CONFIG_FILE = SRC_PATH / 'model.json'
-WEIGHT_FILE = SRC_PATH / 'model.npz'
+DST_PATH = HF_PATH / 'kahsolt#resnet-18-finetuned-ai-art_ft' ; DST_PATH.mkdir(exist_ok=True)
 
-EPOCH = 100
+EPOCH = 30
 BATCH_SIZE = 32
-LR = 1e-5
-MOMENTUM = 0.8
-
-transform_train = T.Compose([
-  T.RandomResizedCrop((224, 224)),
-  T.RandomHorizontalFlip(),
-  T.ToTensor(),
-  T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-])
-
-transform_valid = T.Compose([
-  T.ToTensor(),
-  T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-])
+FEAT_LR = 1e-4
+CLF_LR = 1e-5
+MOMENTUM = 0.9
 
 
 class ImageDataset(Dataset):
@@ -53,6 +39,8 @@ class ImageDataset(Dataset):
     elif split == 'val':
       fps = fps[cp:]
       truth = truth[cp:]
+    elif split == 'all':
+      pass
 
     self.fps = fps
     self.truth = truth
@@ -71,18 +59,14 @@ class ImageDataset(Dataset):
 
 class LitModel(LightningModule):
 
-  def __init__(self, model:nn.Module) -> None:
+  def __init__(self, model:ResNetForImageClassification):
     super().__init__()
-
     self.model = model
-    self.data = LightningDataModule.from_datasets(
-      train_dataset=ImageDataset(DATA_PATH, 'train', transform=transform_train),
-      val_dataset=ImageDataset(DATA_PATH, 'val', transform=transform_valid),
-    )
 
   def configure_optimizers(self):
     params = [
-      {'params': self.parameters(), 'lr': LR},
+      {'params': self.model.resnet.parameters(), 'lr': FEAT_LR},
+      {'params': self.model.classifier.parameters(), 'lr': CLF_LR},
     ]
     return SGD(params, momentum=MOMENTUM)
 
@@ -93,45 +77,56 @@ class LitModel(LightningModule):
     if batch_idx % 10 == 0:
       self.log("train_loss", loss)
     return loss
-
-  def validation_step(self, batch:Tuple[Tensor], batch_idx:int):
+  
+  def infer_step(self, batch:Tuple[Tensor]) -> Tuple[Tensor, float]:
     x, y = batch
     logits = self.model(x)
     loss = F.cross_entropy(logits, y)
     pred = torch.argmax(logits, dim=-1)
     acc = torch.sum(y == pred).item() / len(y)
+    return loss, acc
+
+  def validation_step(self, batch:Tuple[Tensor], batch_idx:int):
+    loss, acc = self.infer_step(batch)
     if batch_idx % 10 == 0:
       self.log_dict({'val_loss': loss.item(), 'val_acc': acc})
 
+  def test_step(self, batch:Tuple[Tensor], batch_idx:int):
+    loss, acc = self.infer_step(batch)
+    if batch_idx % 10 == 0:
+      self.log_dict({'test_loss': loss.item(), 'test_acc': acc})
+
+
+def get_dataloaders(batch_size:int, transform_train:Callable, transform_valid:Callable) -> Tuple[DataLoader, DataLoader, DataLoader]:
+  trainset = ImageDataset(DATA_PATH, 'train', transform=transform_train)
+  trainloader = DataLoader(trainset, batch_size=batch_size, pin_memory=True, persistent_workers=True, num_workers=2)
+  validset = ImageDataset(DATA_PATH, 'valid', transform=transform_valid)
+  validloader = DataLoader(validset, batch_size=batch_size, pin_memory=True, persistent_workers=True, num_workers=2)
+  dataset = ImageDataset(DATA_PATH, 'all', transform=transform_valid)
+  dataloader = DataLoader(dataset, batch_size=batch_size, pin_memory=True, persistent_workers=True, num_workers=2)
+  return trainloader, validloader, dataloader
+
 
 def train():
-  with open(CONFIG_FILE) as fh:
-    cfg = json.load(fh)
-  config = ResNetConfig(**cfg)
-  model = ResNetForImageClassification(config)
-  model = model.eval()
-  weights = np.load(WEIGHT_FILE)
-  state_dict = {k: torch.from_numpy(v) for k, v in weights.items()}
-  model.load_state_dict(state_dict)
+  model = get_resnet18_finetuned_ai_art()
 
   lit = LitModel(model)
+  trainloader, validloader, dataloader = get_dataloaders(BATCH_SIZE, transform_train, transform_valid)
   trainer = Trainer(
     max_epochs=EPOCH,
-    precision='32',
+    precision='bf16-mixed',
     benchmark=True,
-    enable_checkpointing=False,
+    enable_checkpointing=True,
     log_every_n_steps=10,
     val_check_interval=1.0,
     check_val_every_n_epoch=1,
   )
-  trainer.fit(lit, datamodule=lit.data)
+  trainer.fit(lit, trainloader, validloader)
+  trainer.test(lit, dataloader, 'best')
 
-  fp = DST_PATH / 'model.npz'
-  print(f'>> save to {fp}')
-  np.savez(fp, **{k: v.cpu().numpy() for k, v in lit.model.state_dict().items()})
-  fp = DST_PATH / 'model.json'
-  print(f'>> copy to {fp}')
-  copy2(CONFIG_FILE, fp)
+  lit = LitModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path, model=model)
+  np.savez(DST_PATH / 'model.npz', **{k: v.cpu().numpy() for k, v in lit.model.state_dict().items()})
+  copy2(SRC_PATH / 'model.json', DST_PATH / 'model.json')
 
 
 if __name__ == '__main__':

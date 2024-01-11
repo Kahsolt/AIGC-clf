@@ -25,7 +25,14 @@ Team Name: 你这图保真吗
 | fp32 | 99.79445% | overfit all data |
 | fp32 | 89.20863% | split 7:3 |
 | fp16 | 90.54471% | split 7:3 |
+| fp16 | 99.08257% | split 7:3 |
 | bf16 | 89.92806% | split 7:3 |
+
+⚪ aekl-clf finetuned (based on `sd-vae-ft-ema`)
+
+| dtype | pAcc | comment |
+| :-: | :-: | :-: |
+| fp16 | 98.00000% | split 7:3 |
 
 
 ### Quickstart

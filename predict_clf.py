@@ -2,16 +2,17 @@
 # Author: Armit
 # Create Time: 2024/01/07 
 
-from huggingface.resnet import get_resnet18_finetuned_ai_art, infer_resnet
+from huggingface.resnet import get_resnet18_finetuned_ai_art, get_resnet18_finetuned_ai_art_ft, infer_resnet
 from huggingface.swin import get_AI_image_detector, get_xl_detector, infer_swin
 from huggingface.aekl_clf import get_aekl_clf, infer_aekl_clf
 from huggingface.utils import *
 from utils import *
 
+torch.backends.cudnn.benchmark = False
 
 @torch.inference_mode()
 def stats():
-  app = 3
+  app = 4
   if app == 0:
     model_func = get_resnet18_finetuned_ai_art
     infer_func = infer_resnet
@@ -25,9 +26,14 @@ def stats():
     infer_func = infer_swin
     exp_name = 'swin_sdxl'
   elif app == 3:
+    model_func = get_resnet18_finetuned_ai_art_ft
+    infer_func = infer_resnet
+    exp_name = 'resnet_ft'
+  elif app == 4:
     model_func = get_aekl_clf
     infer_func = infer_aekl_clf
     exp_name = 'aekl_clf'
+  print('exp_name:', exp_name)
 
   truth = load_truth()
   model = model_func().to(device)
@@ -37,7 +43,6 @@ def stats():
   fps = get_test_fps()
 
   for i, fp in enumerate(tqdm(fps)):
-    if str(i) in db and type(db[str(i)]) != str: continue
     img = Image.open(fp).convert('RGB')
     logits, probs, pred = infer_func(model, img, debug=True)
     db[i] = {
@@ -46,7 +51,6 @@ def stats():
       'pred': pred,
       'ok': truth[i] == 1 - pred,   # swap 0-1
     }
-    print(f'[{i}] res:', db[i])
     if i % 10 == 0: save_db(db, db_file)
 
   save_db(db, db_file)
