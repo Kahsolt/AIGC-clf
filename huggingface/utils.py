@@ -8,21 +8,19 @@ from pathlib import Path
 from functools import partial
 from typing import *
 
-import numpy as np
-from numpy import ndarray
-from PIL.Image import Image as PILImage
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 import torchvision.transforms as T
 from lightning import seed_everything
+import numpy as np
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
 torch.set_float32_matmul_precision('medium')
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+dtype = torch.float16
 seed_everything(42)
 
 HF_PATH = Path(__file__).parent

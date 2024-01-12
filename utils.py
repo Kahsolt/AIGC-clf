@@ -9,7 +9,6 @@ from typing import *
 from tqdm import tqdm
 from PIL import Image
 import numpy as np
-from numpy import ndarray
 import matplotlib.pyplot as plt
 
 BASE_PATH = Path(__file__).parent

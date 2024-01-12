@@ -8,15 +8,18 @@ from torch.optim import SGD, Adam
 from torch.utils.data import Dataset, DataLoader
 from lightning import LightningModule, Trainer
 
+from huggingface.utils import *   # allow overwrite
 from huggingface.resnet import get_resnet18_finetuned_ai_art, ResNetForImageClassification, transform_train, transform_valid
-from huggingface.utils import *
-from utils import *
+from utils import *               # allow overwrite
+from predict import predict, get_args
 
 SRC_PATH = HF_PATH / 'artfan123#resnet-18-finetuned-ai-art'
 DST_PATH = HF_PATH / 'kahsolt#resnet-18-finetuned-ai-art_ft' ; DST_PATH.mkdir(exist_ok=True)
 
+DTYPE = 'bf16-mixed'
 EPOCH = 30
 BATCH_SIZE = 32
+SPLIT_RATIO = 0.3
 FEAT_LR = 1e-4
 CLF_LR = 1e-5
 MOMENTUM = 0.9
@@ -24,15 +27,14 @@ MOMENTUM = 0.9
 
 class ImageDataset(Dataset):
 
-  def __init__(self, dp:Path, split:str='train', transform:Callable=None):
+  def __init__(self, dp:Path, split:str='train', split_ratio:float=0.7, transform:Callable=None):
     super().__init__()
 
     fps = get_test_fps(dp)
     truth = load_truth()
     assert len(fps) == len(truth)
     nlen = len(fps)
-    # train:val = 7:3
-    cp = round(nlen * 0.7)
+    cp = round(nlen * split_ratio)
     if split == 'train':
       fps = fps[:cp]
       truth = truth[:cp]
@@ -97,12 +99,12 @@ class LitModel(LightningModule):
       self.log_dict({'test_loss': loss.item(), 'test_acc': acc})
 
 
-def get_dataloaders(batch_size:int, transform_train:Callable, transform_valid:Callable) -> Tuple[DataLoader, DataLoader, DataLoader]:
-  trainset = ImageDataset(DATA_PATH, 'train', transform=transform_train)
+def get_dataloaders(batch_size:int, split_ratio:float, transform_train:Callable, transform_valid:Callable) -> Tuple[DataLoader, DataLoader, DataLoader]:
+  trainset = ImageDataset(DATA_PATH, 'train', split_ratio, transform=transform_train)
   trainloader = DataLoader(trainset, batch_size=batch_size, pin_memory=True, persistent_workers=True, num_workers=2)
-  validset = ImageDataset(DATA_PATH, 'valid', transform=transform_valid)
+  validset = ImageDataset(DATA_PATH, 'valid', split_ratio, transform=transform_valid)
   validloader = DataLoader(validset, batch_size=batch_size, pin_memory=True, persistent_workers=True, num_workers=2)
-  dataset = ImageDataset(DATA_PATH, 'all', transform=transform_valid)
+  dataset = ImageDataset(DATA_PATH, 'all', split_ratio, transform=transform_valid)
   dataloader = DataLoader(dataset, batch_size=batch_size, pin_memory=True, persistent_workers=True, num_workers=2)
   return trainloader, validloader, dataloader
 
@@ -111,10 +113,10 @@ def train():
   model = get_resnet18_finetuned_ai_art()
 
   lit = LitModel(model)
-  trainloader, validloader, dataloader = get_dataloaders(BATCH_SIZE, transform_train, transform_valid)
+  trainloader, validloader, dataloader = get_dataloaders(BATCH_SIZE, SPLIT_RATIO, transform_train, transform_valid)
   trainer = Trainer(
     max_epochs=EPOCH,
-    precision='bf16-mixed',
+    precision=DTYPE,
     benchmark=True,
     enable_checkpointing=True,
     log_every_n_steps=10,
@@ -127,6 +129,8 @@ def train():
   lit = LitModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path, model=model)
   np.savez(DST_PATH / 'model.npz', **{k: v.cpu().numpy() for k, v in lit.model.state_dict().items()})
   copy2(SRC_PATH / 'model.json', DST_PATH / 'model.json')
+
+  predict(get_args(), app=1)
 
 
 if __name__ == '__main__':

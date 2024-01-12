@@ -881,7 +881,7 @@ def param_dict_name_mapping(kv:Dict[str, Parameter]) -> Dict[str, Parameter]:
     return new_kv
 
 
-def infer_autoencoder_kl(model:AutoencoderKL, img:PILImage, construct_func:Callable=None) -> Tuple[Tensor, Tensor]:
+def infer_autoencoder_kl(model:AutoencoderKL, X:Tensor, construct_func:Callable=None) -> Tuple[Tensor, Tensor]:
     def pad(x:Tensor, opt_C:int=8) -> Tuple[Tensor, Tuple[int]]:
         C, H, W = x.shape
         H_pad = math.ceil(H / opt_C) * opt_C - H
@@ -898,8 +898,6 @@ def infer_autoencoder_kl(model:AutoencoderKL, img:PILImage, construct_func:Calla
             x = x[:, sH, sW]
         return x
 
-    X = transform(img)[0]   # do not know why this returns a ndarray tuple
-    X = Tensor.from_numpy(X).astype(ms.float32)
     X_pad, pads = pad(X)
     if construct_func:
         X_pad_hat = construct_func(model, X_pad.unsqueeze(0)).squeeze(0)
@@ -909,13 +907,13 @@ def infer_autoencoder_kl(model:AutoencoderKL, img:PILImage, construct_func:Calla
     return X, X_hat
 
 
-def infer_autoencoder_kl_with_latent_noise(model:AutoencoderKL, img:PILImage, eps:float=1e-5) -> Tuple[Tensor, Tensor]:
+def infer_autoencoder_kl_with_latent_noise(model:AutoencoderKL, X:Tensor, eps:float=1e-5) -> Tuple[Tensor, Tensor]:
     def construct_hijack(self:AutoencoderKL, x:Tensor) -> Tensor:
         posterior = self.encode(x)
         z = posterior.mode()
         z += F.randn_like(z) * eps
         return self.decode(z)
-    return infer_autoencoder_kl(model, img, construct_hijack)
+    return infer_autoencoder_kl(model, X, construct_hijack)
 
 
 def get_app(app_name:str) -> AutoencoderKL:

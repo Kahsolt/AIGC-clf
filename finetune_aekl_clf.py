@@ -2,14 +2,16 @@
 # Author: Armit
 # Create Time: 2024/01/11 
 
-from finetune_resnet import *   # import firstly, allow overwrite
+from finetune_resnet import *   # allow overwrite
 from huggingface.aekl_clf import get_sd_vae_ft_ema, AutoencoderKLClassifier, transform_train, transform_valid
 
 SRC_PATH = HF_PATH / 'stabilityai#sd-vae-ft-ema'
 DST_PATH = HF_PATH / 'kahsolt#sd-vae-ft-ema_clf' ; DST_PATH.mkdir(exist_ok=True)
 
+DTYPE = 'bf16-mixed'
 EPOCH = 100
 BATCH_SIZE = 4
+SPLIT_RATIO = 0.3
 FEAT_LR = 1e-4
 CLF_LR = 1e-3
 MOMENTUM = 0.9
@@ -34,10 +36,10 @@ def train():
   model = AutoencoderKLClassifier(aekl)
 
   lit = LitModelAEKL(model)
-  trainloader, validloader, dataloader = get_dataloaders(BATCH_SIZE, transform_train, transform_valid)
+  trainloader, validloader, dataloader = get_dataloaders(BATCH_SIZE, SPLIT_RATIO, transform_train, transform_valid)
   trainer = Trainer(
     max_epochs=EPOCH,
-    precision='bf16-mixed',
+    precision=DTYPE,
     benchmark=True,
     enable_checkpointing=True,
     log_every_n_steps=10,
@@ -50,6 +52,8 @@ def train():
   lit = LitModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path, model=model)
   np.savez(DST_PATH / 'model.npz', **{k: v.cpu().numpy() for k, v in lit.model.state_dict().items()})
   copy2(SRC_PATH / 'model.json', DST_PATH / 'model.json')
+
+  predict(get_args(), app=2)
 
 
 if __name__ == '__main__':

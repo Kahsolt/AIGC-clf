@@ -46,9 +46,7 @@ class AutoencoderKLClassifier(nn.Module):
     return o
 
 
-def infer_aekl_clf(model:AutoencoderKLClassifier, img:PILImage, debug:bool=False) -> Union[int, Tuple[float, float], Tuple[int, int], Tuple[int]]:
-  X = transform(img)
-  X = X.to(device, torch.float32)
+def infer_aekl_clf(model:AutoencoderKLClassifier, X:Tensor, debug:bool=False) -> Union[int, Tuple[float, float], Tuple[int, int], Tuple[int]]:
   logits = model(X.unsqueeze(0)).squeeze(0)
   probs = F.softmax(logits, dim=-1)
   pred = torch.argmax(probs).item()

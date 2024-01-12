@@ -16,23 +16,18 @@ Team Name: 你这图保真吗
 | [AI-generated-art-classifier](https://huggingface.co/spaces/artfan123/AI-generated-art-classifier) | 88.69476% | resnet18 clf |
 | [AI-image-detector](https://huggingface.co/umm-maybe/AI-image-detector) | 78.82837% | swin clf |
 | [sdxl-detector](https://huggingface.co/Organika/sdxl-detector) | 56.62898% | swin clf |
-| [sd-vae-ft-mse](https://huggingface.co/stabilityai/sd-vae-ft-mse) | 70.7086% | aekl + clf |
+| [sd-vae-ft-mse](https://huggingface.co/stabilityai/sd-vae-ft-mse) | 70.7086% | aekl + clf by loss_diff |
 
-⚪ resnet18 finetuned (based on `AI-generated-art-classifier`)
+⚪ finetuned
 
-| dtype | pAcc | comment |
-| :-: | :-: | :-: |
-| fp32 | 99.79445% | overfit all data |
-| fp32 | 89.20863% | split 7:3 |
-| fp16 | 90.54471% | split 7:3 |
-| fp16 | 99.08257% | split 7:3 |
-| bf16 | 89.92806% | split 7:3 |
-
-⚪ aekl-clf finetuned (based on `sd-vae-ft-ema`)
-
-| dtype | pAcc | comment |
-| :-: | :-: | :-: |
-| fp16 | 98.00000% | split 7:3 |
+| model | dtype | pAcc | comment |
+| :-: | :-: | :-: | :-: |
+| resnet18 | fp32 | 99.79445% | overfit all data |
+| resnet18 | fp16 | 99.08257% | split 7:3 |
+| aekl-clf | fp16 | 98.04728% | split 7:3 |
+| resnet18 | fp32 | 93.26824% | split 3:7 |
+| resnet18 | fp16 | 93.21686% | split 3:7 |
+| resnet18 | bf16 | 95.73484% | split 3:7 |
 
 
 ### Quickstart

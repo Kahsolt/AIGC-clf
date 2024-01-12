@@ -10,7 +10,6 @@ from typing import *
 
 import numpy as np
 from numpy import ndarray
-from PIL.Image import Image as PILImage
 
 import mindspore as ms
 import mindspore.nn as nn
