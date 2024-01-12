@@ -4,7 +4,7 @@
 
 from argparse import ArgumentParser
 
-from huggingface.resnet import get_resnet18_finetuned_ai_art, get_resnet18_finetuned_ai_art_ft, infer_resnet, transform as transform_resnet
+from huggingface.resnet import get_resnet18_finetuned_ai_art, get_resnet18_finetuned_ai_art_ft, infer_resnet, transform as transform_resnet, transform_valid as transform_resnet_var
 from huggingface.aekl_clf import get_aekl_clf, infer_aekl_clf, transform as transform_aekl_clf
 from huggingface.utils import *
 from utils import *
@@ -14,12 +14,12 @@ torch.backends.cudnn.benchmark = False
 @torch.inference_mode()
 def predict(args, app:int=1):
   if app == 0:
-    transform_func = transform_resnet
+    transform_func = transform_resnet_var
     model_func = get_resnet18_finetuned_ai_art
     infer_func = infer_resnet
     exp_name = 'resnet'
   elif app == 1:
-    transform_func = transform_resnet
+    transform_func = transform_resnet_var
     model_func = get_resnet18_finetuned_ai_art_ft
     infer_func = infer_resnet
     exp_name = 'resnet_ft'
@@ -62,7 +62,7 @@ def predict(args, app:int=1):
       pbar.set_description_str(f'>> pAcc: {ok} / {tot} = {ok / tot:.5%}')
 
   save_db(db, db_file)
-  print(f'>> pAcc: {sum(rec["ok"] for rec in db.values()) / len(db):.5%}')
+  print(f'>> pAcc: {ok} / {tot} = {ok / tot:.5%}')
 
   out_fp = Path(args.output_path)
   out_fp.parent.mkdir(exist_ok=True, parents=True)
@@ -80,7 +80,7 @@ def predict(args, app:int=1):
     out_0.append(logits[0])
     out_1.append(logits[1])
   plt.clf()
-  plt.scatter(out_0, out_1, c=color, cmap='bwr')
+  plt.scatter(out_0, out_1, s=1, c=color, cmap='bwr')
   plt.xlabel('AI')    # logits 0
   plt.ylabel('real')  # logits 1
   plt.suptitle(exp_name)

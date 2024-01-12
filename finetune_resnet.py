@@ -17,11 +17,12 @@ SRC_PATH = HF_PATH / 'artfan123#resnet-18-finetuned-ai-art'
 DST_PATH = HF_PATH / 'kahsolt#resnet-18-finetuned-ai-art_ft' ; DST_PATH.mkdir(exist_ok=True)
 
 DTYPE = 'bf16-mixed'
-EPOCH = 30
+EPOCH = 10
 BATCH_SIZE = 32
 SPLIT_RATIO = 0.3
+INPUT_LR = 1e-4
 FEAT_LR = 1e-4
-CLF_LR = 1e-5
+CLF_LR = 1e-4
 MOMENTUM = 0.9
 
 
@@ -53,7 +54,7 @@ class ImageDataset(Dataset):
 
   def __getitem__(self, idx:int):
     y = self.truth[idx]
-    img = Image.open(self.fps[idx]).convert('RGB')
+    img = load_img(self.fps[idx])
     if self.transform:
       img = self.transform(img)
     return img, 1 - y   # swap 0-1
@@ -63,13 +64,22 @@ class LitModel(LightningModule):
 
   def __init__(self, model:ResNetForImageClassification):
     super().__init__()
+
+    if FEAT_LR is None:
+      model.resnet.requires_grad_(False)
     self.model = model
 
-  def configure_optimizers(self):
+  def make_trainable_params(self) -> List[Dict[str, Any]]:
     params = [
-      {'params': self.model.resnet.parameters(), 'lr': FEAT_LR},
       {'params': self.model.classifier.parameters(), 'lr': CLF_LR},
     ]
+    if FEAT_LR is not None:
+      params.append({'params': self.model.resnet.embedder.parameters(), 'lr': INPUT_LR}) 
+      params.append({'params': self.model.resnet.encoder.parameters(), 'lr': FEAT_LR}) 
+    return params
+
+  def configure_optimizers(self):
+    params = self.make_trainable_params()
     return SGD(params, momentum=MOMENTUM)
 
   def training_step(self, batch:Tuple[Tensor], batch_idx:int) -> Tensor:
@@ -79,7 +89,7 @@ class LitModel(LightningModule):
     if batch_idx % 10 == 0:
       self.log("train_loss", loss)
     return loss
-  
+
   def infer_step(self, batch:Tuple[Tensor]) -> Tuple[Tensor, float]:
     x, y = batch
     logits = self.model(x)
@@ -124,9 +134,9 @@ def train():
     check_val_every_n_epoch=1,
   )
   trainer.fit(lit, trainloader, validloader)
+  lit = LitModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path, model=model)
   trainer.test(lit, dataloader, 'best')
 
-  lit = LitModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path, model=model)
   np.savez(DST_PATH / 'model.npz', **{k: v.cpu().numpy() for k, v in lit.model.state_dict().items()})
   copy2(SRC_PATH / 'model.json', DST_PATH / 'model.json')
 

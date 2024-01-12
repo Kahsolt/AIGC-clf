@@ -12,7 +12,8 @@ DTYPE = 'bf16-mixed'
 EPOCH = 100
 BATCH_SIZE = 4
 SPLIT_RATIO = 0.3
-FEAT_LR = 1e-4
+FEAT_LR = 1e-5
+NIN_LR = 1e-4
 CLF_LR = 1e-3
 MOMENTUM = 0.9
 
@@ -21,14 +22,19 @@ class LitModelAEKL(LitModel):
 
   def __init__(self, model:AutoencoderKLClassifier):
     super().__init__(model)
+
+    if FEAT_LR is None:
+      model.encoder.requires_grad_(False)
     self.model = model
 
-  def configure_optimizers(self):
+  def make_trainable_params(self) -> List[Dict[str, Any]]:
     params = [
-      {'params': self.model.model.parameters(), 'lr': FEAT_LR},
-      {'params': self.model.mlp.parameters(), 'lr': CLF_LR},
+      {'params': self.model.quant_conv.parameters(), 'lr': NIN_LR},
+      {'params': self.model.clf       .parameters(), 'lr': CLF_LR},
     ]
-    return SGD(params, momentum=MOMENTUM)
+    if FEAT_LR is not None:
+      params.append({'params': self.model.encoder.parameters(), 'lr': FEAT_LR})
+    return params
 
 
 def train():
@@ -47,9 +53,9 @@ def train():
     check_val_every_n_epoch=1,
   )
   trainer.fit(lit, trainloader, validloader)
+  lit = LitModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path, model=model)
   trainer.test(lit, dataloader, 'best')
 
-  lit = LitModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path, model=model)
   np.savez(DST_PATH / 'model.npz', **{k: v.cpu().numpy() for k, v in lit.model.state_dict().items()})
   copy2(SRC_PATH / 'model.json', DST_PATH / 'model.json')
 

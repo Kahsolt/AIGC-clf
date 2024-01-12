@@ -10,6 +10,8 @@ Team Name: 你这图保真吗
 
 ### Results
 
+⚪ migrated pretrained
+
 | method | pAcc | comment |
 | :-: | :-: | :-: |
 | cheaty | 99.897224% | detect image h/w==512 |
@@ -24,7 +26,7 @@ Team Name: 你这图保真吗
 | :-: | :-: | :-: | :-: |
 | resnet18 | fp32 | 99.79445% | overfit all data |
 | resnet18 | fp16 | 99.08257% | split 7:3 |
-| aekl-clf | fp16 | 98.04728% | split 7:3 |
+| aekl-clf | fp16 | 98.04728% | split 7:3, unfreeze encoder |
 | resnet18 | fp32 | 93.26824% | split 3:7 |
 | resnet18 | fp16 | 93.21686% | split 3:7 |
 | resnet18 | bf16 | 95.73484% | split 3:7 |
