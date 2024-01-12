@@ -15,6 +15,7 @@ from torch import Tensor
 import torchvision.transforms as T
 from lightning import seed_everything
 import numpy as np
+from numpy import ndarray
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
@@ -36,3 +37,10 @@ ACT2FN = {
   "swish": nn.SiLU(),
   "tanh": nn.Tanh(),
 }
+
+
+def im_to_tensor(im:ndarray) -> Tensor:
+  return torch.from_numpy(im).permute([2, 0, 1])
+
+def tensor_to_im(X:Tensor) -> ndarray:
+  return X.permute([1, 2, 0]).cpu().numpy()

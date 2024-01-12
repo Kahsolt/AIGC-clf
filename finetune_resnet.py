@@ -4,7 +4,7 @@
 
 from shutil import copy2
 
-from torch.optim import SGD, Adam
+from torch.optim import SGD, Adam, AdamW
 from torch.utils.data import Dataset, DataLoader
 from lightning import LightningModule, Trainer
 
@@ -109,17 +109,23 @@ class LitModel(LightningModule):
       self.log_dict({'test_loss': loss.item(), 'test_acc': acc})
 
 
-def get_dataloaders(batch_size:int, split_ratio:float, transform_train:Callable, transform_valid:Callable) -> Tuple[DataLoader, DataLoader, DataLoader]:
-  trainset = ImageDataset(DATA_PATH, 'train', split_ratio, transform=transform_train)
-  trainloader = DataLoader(trainset, batch_size=batch_size, pin_memory=True, persistent_workers=True, num_workers=2)
-  validset = ImageDataset(DATA_PATH, 'valid', split_ratio, transform=transform_valid)
-  validloader = DataLoader(validset, batch_size=batch_size, pin_memory=True, persistent_workers=True, num_workers=2)
-  dataset = ImageDataset(DATA_PATH, 'all', split_ratio, transform=transform_valid)
-  dataloader = DataLoader(dataset, batch_size=batch_size, pin_memory=True, persistent_workers=True, num_workers=2)
+def get_dataloaders(batch_size:int, split_ratio:float, transform_train:Callable, transform_valid:Callable, dataset_cls=ImageDataset) -> Tuple[DataLoader, DataLoader, DataLoader]:
+  kwargs = {
+    'batch_size': batch_size, 
+    'pin_memory': True, 
+    'num_workers': 2,
+    'persistent_workers': True,
+  }
+  trainset = dataset_cls(DATA_PATH, 'train', split_ratio, transform=transform_train)
+  trainloader = DataLoader(trainset, **kwargs)
+  validset = dataset_cls(DATA_PATH, 'valid', split_ratio, transform=transform_valid)
+  validloader = DataLoader(validset, **kwargs)
+  dataset = dataset_cls(DATA_PATH, 'all', split_ratio, transform=transform_valid)
+  dataloader = DataLoader(dataset, **kwargs)
   return trainloader, validloader, dataloader
 
 
-def train():
+if __name__ == '__main__':
   model = get_resnet18_finetuned_ai_art()
 
   lit = LitModel(model)
@@ -141,7 +147,3 @@ def train():
   copy2(SRC_PATH / 'model.json', DST_PATH / 'model.json')
 
   predict(get_args(), app=1)
-
-
-if __name__ == '__main__':
-  train()

@@ -25,6 +25,18 @@ transform = T.Compose([
   T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
 ])
 
+MIN_PATH_SIZE = 80
+
+transform_train_highfreq = T.Compose([
+  T.RandomCrop((MIN_PATH_SIZE, MIN_PATH_SIZE)),
+  T.RandomHorizontalFlip(),
+  T.RandomVerticalFlip(),
+])
+
+transform_valid_highfreq = T.Compose([
+  T.RandomCrop((MIN_PATH_SIZE, MIN_PATH_SIZE)),
+])
+
 
 class ResNetConfig:
 
@@ -253,6 +265,10 @@ def get_resnet18_finetuned_ai_art() -> ResNetForImageClassification:
 
 def get_resnet18_finetuned_ai_art_ft() -> ResNetForImageClassification:
     return get_app('kahsolt#resnet-18-finetuned-ai-art_ft')
+
+
+def get_resnet18_finetuned_ai_art_hf() -> ResNetForImageClassification:
+    return get_app('kahsolt#resnet-18-finetuned-ai-art_hf')
 
 
 if __name__ == '__main__':

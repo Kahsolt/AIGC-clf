@@ -37,7 +37,7 @@ class LitModelAEKL(LitModel):
     return params
 
 
-def train():
+if __name__ == '__main__':
   aekl = get_sd_vae_ft_ema()
   model = AutoencoderKLClassifier(aekl)
 
@@ -53,14 +53,10 @@ def train():
     check_val_every_n_epoch=1,
   )
   trainer.fit(lit, trainloader, validloader)
-  lit = LitModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path, model=model)
+  lit = LitModelAEKL.load_from_checkpoint(trainer.checkpoint_callback.best_model_path, model=model)
   trainer.test(lit, dataloader, 'best')
 
   np.savez(DST_PATH / 'model.npz', **{k: v.cpu().numpy() for k, v in lit.model.state_dict().items()})
   copy2(SRC_PATH / 'model.json', DST_PATH / 'model.json')
 
   predict(get_args(), app=2)
-
-
-if __name__ == '__main__':
-  train()

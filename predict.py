@@ -4,12 +4,21 @@
 
 from argparse import ArgumentParser
 
-from huggingface.resnet import get_resnet18_finetuned_ai_art, get_resnet18_finetuned_ai_art_ft, infer_resnet, transform as transform_resnet, transform_valid as transform_resnet_var
-from huggingface.aekl_clf import get_aekl_clf, infer_aekl_clf, transform as transform_aekl_clf
+from huggingface.resnet import get_resnet18_finetuned_ai_art, get_resnet18_finetuned_ai_art_ft, get_resnet18_finetuned_ai_art_hf, infer_resnet
+from huggingface.resnet import transform as transform_resnet, transform_valid as transform_resnet_var, transform_valid_highfreq as transform_resnet_highfreq
+from huggingface.aekl_clf import get_aekl_clf, infer_aekl_clf
+from huggingface.aekl_clf import transform as transform_aekl_clf
 from huggingface.utils import *
 from utils import *
 
 torch.backends.cudnn.benchmark = False
+
+def transform_func_hf(img:PILImage) -> ndarray:
+  im_hi = to_hifreq(img)
+  im_hi = im_to_tensor(im_hi)
+  im_hi = transform_resnet_highfreq(im_hi)
+  return im_hi
+
 
 @torch.inference_mode()
 def predict(args, app:int=1):
@@ -23,6 +32,11 @@ def predict(args, app:int=1):
     model_func = get_resnet18_finetuned_ai_art_ft
     infer_func = infer_resnet
     exp_name = 'resnet_ft'
+  elif app == 3:
+    transform_func = transform_func_hf
+    model_func = get_resnet18_finetuned_ai_art_hf
+    infer_func = infer_resnet
+    exp_name = 'resnet_hf'
   elif app == 2:
     transform_func = transform_aekl_clf
     model_func = get_aekl_clf
@@ -98,4 +112,4 @@ def get_args():
 
 if __name__ == '__main__':
   args = get_args()
-  predict(args)
+  predict(args, 3)
