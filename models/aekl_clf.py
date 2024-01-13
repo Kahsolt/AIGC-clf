@@ -2,27 +2,17 @@
 # Author: Armit
 # Create Time: 2024/01/04 
 
-from huggingface.aekl import AutoencoderKL, DiagonalGaussianDistribution, get_sd_vae_ft_ema
-from huggingface.utils import *
+from models.aekl import AutoencoderKL, DiagonalGaussianDistribution
+from models.utils import *
 
 opt_f = 8
 PATCH_SIZE = 256
 LATENT_SIZE = PATCH_SIZE // opt_f
 
-transform_train = T.Compose([
-  T.RandomResizedCrop((PATCH_SIZE, PATCH_SIZE)),
+transform = T.Compose([
+  T.RandomResizedCrop((PATCH_SIZE, PATCH_SIZE), scale=(0.8, 1.0)),
   T.RandomHorizontalFlip(),
   T.RandomVerticalFlip(),
-  T.ToTensor(),
-])
-
-transform_valid = T.Compose([
-  T.RandomResizedCrop((PATCH_SIZE, PATCH_SIZE)),
-  T.ToTensor(),
-])
-
-transform = T.Compose([
-  T.RandomResizedCrop((PATCH_SIZE, PATCH_SIZE)),
   T.ToTensor(),
 ])
 
@@ -55,13 +45,6 @@ class AutoencoderKLClassifier(nn.Module):
     return o
 
 
-def infer_aekl_clf(model:AutoencoderKLClassifier, X:Tensor, debug:bool=False) -> Union[int, Tuple[float, float], Tuple[int, int], Tuple[int]]:
-  logits = model(X.unsqueeze(0)).squeeze(0)
-  probs = F.softmax(logits, dim=-1)
-  pred = torch.argmax(probs).item()
-  return (logits.cpu().numpy().tolist(), probs.cpu().numpy().tolist(), pred) if debug else pred
-
-
 def get_app(app_name:str, aekl:AutoencoderKL) -> AutoencoderKLClassifier:
   APP_PATH = HF_PATH / app_name
   WEIGHT_FILE = APP_PATH / 'model.npz'
@@ -74,13 +57,14 @@ def get_app(app_name:str, aekl:AutoencoderKL) -> AutoencoderKLClassifier:
   return model
 
 
-def get_aekl_clf():
-  aekl = get_sd_vae_ft_ema()
-  return get_app('kahsolt#sd-vae-ft-ema_clf', aekl)
+def get_app_aekl_clf():
+  from models.aekl import get_app_vae_ema
+  aekl = get_app_vae_ema()
+  return get_app('kahsolt#aekl-clf', aekl)
 
 
 if __name__ == '__main__':
-  model = get_aekl_clf()
+  model = get_app_aekl_clf()
   print(model)
   X = torch.zeros([1, 3, PATCH_SIZE, PATCH_SIZE])
   logits = model(X)

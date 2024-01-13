@@ -1,2 +1,5 @@
 mindspore -i https://pypi.tuna.tsinghua.edu.cn/simple
-mindcv
+numpy
+matplotlib
+seaborn
+tqdm

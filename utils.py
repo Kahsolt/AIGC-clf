@@ -9,21 +9,21 @@ from typing import *
 from tqdm import tqdm
 from PIL import Image, ImageFilter
 from PIL.Image import Image as PILImage
-from skimage.metrics import *
 import numpy as np
 from numpy import ndarray
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 BASE_PATH = Path(__file__).parent
 HF_PATH = BASE_PATH / 'huggingface'
-DATA_PATH = BASE_PATH / 'test'
-DATA_FAKE_PATH = BASE_PATH / 'data' / 'imgs'
+DATA_PATH = BASE_PATH / 'data'
 IMG_PATH = BASE_PATH / 'img' ; IMG_PATH.mkdir(exist_ok=True)
-OUT_PATH = BASE_PATH / 'output' ; OUT_PATH.mkdir(exist_ok=True)
+OUT_PATH = BASE_PATH / 'out' ; OUT_PATH.mkdir(exist_ok=True)
 TRUTH_FILE = OUT_PATH / 'result-ref.txt'
 RESULT_FILE = OUT_PATH / 'result.txt'
 
 npimg = ndarray
+mean = lambda x: sum(x) / len(x) if len(x) else 0.0
 
 
 def get_test_fps(dp:Path=DATA_PATH):

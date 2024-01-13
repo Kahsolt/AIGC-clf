@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # Author: Armit
-# Create Time: 2024/01/06 
+# Create Time: 2024/01/04 
 
 from models.utils import *
 
 transform = T.Compose([
-    VT.ToTensor(),
+    T.ToTensor(),
 ])
 
 
@@ -69,10 +69,10 @@ def upsample_2d(hidden_states, kernel=None, factor=2, gain=1):
     if kernel is None:
         kernel = [1] * factor
 
-    kernel = Tensor(kernel, dtype=ms.float32)
+    kernel = torch.tensor(kernel, dtype=torch.float32)
     if kernel.ndim == 1:
-        kernel = F.outer(kernel, kernel)
-    kernel /= F.sum(kernel)
+        kernel = torch.outer(kernel, kernel)
+    kernel /= torch.sum(kernel)
 
     kernel = kernel * (gain * (factor**2))
     pad_value = kernel.shape[0] - factor
@@ -90,10 +90,10 @@ def downsample_2d(hidden_states, kernel=None, factor=2, gain=1):
     if kernel is None:
         kernel = [1] * factor
 
-    kernel = Tensor(kernel, dtype=ms.float32)
+    kernel = torch.tensor(kernel, dtype=torch.float32)
     if kernel.ndim == 1:
-        kernel = F.outer(kernel, kernel)
-    kernel /= F.sum(kernel)
+        kernel = torch.outer(kernel, kernel)
+    kernel /= torch.sum(kernel)
 
     kernel = kernel * gain
     pad_value = kernel.shape[0] - factor
@@ -133,7 +133,7 @@ def upfirdn2d_native(tensor, kernel, up=1, down=1, pad=(0, 0)):
 
     out = out.permute(0, 3, 1, 2)
     out = out.reshape([-1, 1, in_h * up_y + pad_y0 + pad_y1, in_w * up_x + pad_x0 + pad_x1])
-    w = F.flip(kernel, [0, 1]).view(1, 1, kernel_h, kernel_w)
+    w = torch.flip(kernel, [0, 1]).view(1, 1, kernel_h, kernel_w)
     out = F.conv2d(out, w)
     out = out.reshape(
         -1,
@@ -150,7 +150,7 @@ def upfirdn2d_native(tensor, kernel, up=1, down=1, pad=(0, 0)):
     return out.view(-1, channel, out_h, out_w)
 
 
-class Upsample2D(nn.Cell):
+class Upsample2D(nn.Module):
 
     def __init__(self, channels, use_conv=False, use_conv_transpose=False, out_channels=None, name="conv"):
         super().__init__()
@@ -163,12 +163,17 @@ class Upsample2D(nn.Cell):
 
         conv = None
         if use_conv_transpose:
-            conv = nn.Conv2dTranspose(channels, self.out_channels, 4, 2, 1, has_bias=True)
+            conv = nn.ConvTranspose2d(channels, self.out_channels, 4, 2, 1)
         elif use_conv:
-            conv = nn.Conv2d(self.channels, self.out_channels, 3, pad_mode='pad', padding=1, has_bias=True)
-        self.conv = conv
+            conv = nn.Conv2d(self.channels, self.out_channels, 3, padding=1)
 
-    def construct(self, hidden_states, output_size=None):
+        # TODO(Suraj, Patrick) - clean up after weight dicts are correctly renamed
+        if name == "conv":
+            self.conv = conv
+        else:
+            self.Conv2d_0 = conv
+
+    def forward(self, hidden_states, output_size=None):
         assert hidden_states.shape[1] == self.channels
 
         if self.use_conv_transpose:
@@ -178,27 +183,34 @@ class Upsample2D(nn.Cell):
         # TODO(Suraj): Remove this cast once the issue is fixed in PyTorch
         # https://github.com/pytorch/pytorch/issues/86679
         dtype = hidden_states.dtype
-        if dtype == ms.bfloat16:
-            hidden_states = hidden_states.to(ms.float32)
+        if dtype == torch.bfloat16:
+            hidden_states = hidden_states.to(torch.float32)
+
+        # upsample_nearest_nhwc fails with large batch sizes. see https://github.com/huggingface/diffusers/issues/984
+        if hidden_states.shape[0] >= 64:
+            hidden_states = hidden_states.contiguous()
 
         # if `output_size` is passed we force the interpolation output
         # size and do not make use of `scale_factor=2`
         if output_size is None:
-            B, C, H, W = hidden_states.shape
-            output_size = (H * 2, W * 2)
-        hidden_states = F.interpolate(hidden_states, size=output_size, mode="nearest")
+            hidden_states = F.interpolate(hidden_states, scale_factor=2.0, mode="nearest")
+        else:
+            hidden_states = F.interpolate(hidden_states, size=output_size, mode="nearest")
 
         # If the input is bfloat16, we cast back to bfloat16
-        if dtype == ms.bfloat16:
+        if dtype == torch.bfloat16:
             hidden_states = hidden_states.to(dtype)
 
         # TODO(Suraj, Patrick) - clean up after weight dicts are correctly renamed
         if self.use_conv:
-            hidden_states = self.conv(hidden_states)
+            if self.name == "conv":
+                hidden_states = self.conv(hidden_states)
+            else:
+                hidden_states = self.Conv2d_0(hidden_states)
         return hidden_states
 
 
-class Downsample2D(nn.Cell):
+class Downsample2D(nn.Module):
 
     def __init__(self, channels, use_conv=False, out_channels=None, padding=1, name="conv"):
         super().__init__()
@@ -211,7 +223,7 @@ class Downsample2D(nn.Cell):
         self.name = name
 
         if use_conv:
-            conv = nn.Conv2d(self.channels, self.out_channels, 3, stride=stride, pad_mode='pad', padding=padding, has_bias=True)
+            conv = nn.Conv2d(self.channels, self.out_channels, 3, stride=stride, padding=padding)
         else:
             assert self.channels == self.out_channels
             conv = nn.AvgPool2d(kernel_size=stride, stride=stride)
@@ -225,7 +237,7 @@ class Downsample2D(nn.Cell):
         else:
             self.conv = conv
 
-    def construct(self, hidden_states):
+    def forward(self, hidden_states):
         assert hidden_states.shape[1] == self.channels
         if self.use_conv and self.padding == 0:
             pad = (0, 1, 0, 1)
@@ -236,7 +248,112 @@ class Downsample2D(nn.Cell):
         return hidden_states
 
 
-class ResnetBlock2D(nn.Cell):
+class UpDecoderBlock2D(nn.Module):
+
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        dropout: float = 0.0,
+        num_layers: int = 1,
+        resnet_eps: float = 1e-6,
+        resnet_time_scale_shift: str = "default",
+        resnet_act_fn: str = "swish",
+        resnet_groups: int = 32,
+        resnet_pre_norm: bool = True,
+        output_scale_factor=1.0,
+        add_upsample=True,
+    ):
+        super().__init__()
+
+        resnets = []
+        for i in range(num_layers):
+            input_channels = in_channels if i == 0 else out_channels
+            resnets.append(
+                ResnetBlock2D(
+                    in_channels=input_channels,
+                    out_channels=out_channels,
+                    temb_channels=None,
+                    eps=resnet_eps,
+                    groups=resnet_groups,
+                    dropout=dropout,
+                    time_embedding_norm=resnet_time_scale_shift,
+                    non_linearity=resnet_act_fn,
+                    output_scale_factor=output_scale_factor,
+                    pre_norm=resnet_pre_norm,
+                )
+            )
+        self.resnets = nn.ModuleList(resnets)
+
+        if add_upsample:
+            self.upsamplers = nn.ModuleList([Upsample2D(out_channels, use_conv=True, out_channels=out_channels)])
+        else:
+            self.upsamplers = None
+
+    def forward(self, hidden_states):
+        for resnet in self.resnets:
+            hidden_states = resnet(hidden_states, temb=None)
+        if self.upsamplers is not None:
+            for upsampler in self.upsamplers:
+                hidden_states = upsampler(hidden_states)
+        return hidden_states
+
+
+class DownEncoderBlock2D(nn.Module):
+
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        dropout: float = 0.0,
+        num_layers: int = 1,
+        resnet_eps: float = 1e-6,
+        resnet_time_scale_shift: str = "default",
+        resnet_act_fn: str = "swish",
+        resnet_groups: int = 32,
+        resnet_pre_norm: bool = True,
+        output_scale_factor=1.0,
+        add_downsample=True,
+        downsample_padding=1,
+    ):
+        super().__init__()
+
+        resnets = []
+        for i in range(num_layers):
+            in_channels = in_channels if i == 0 else out_channels
+            resnets.append(
+                ResnetBlock2D(
+                    in_channels=in_channels,
+                    out_channels=out_channels,
+                    temb_channels=None,
+                    eps=resnet_eps,
+                    groups=resnet_groups,
+                    dropout=dropout,
+                    time_embedding_norm=resnet_time_scale_shift,
+                    non_linearity=resnet_act_fn,
+                    output_scale_factor=output_scale_factor,
+                    pre_norm=resnet_pre_norm,
+                )
+            )
+        self.resnets = nn.ModuleList(resnets)
+
+        if add_downsample:
+            self.downsamplers = nn.ModuleList([
+                Downsample2D(in_channels, use_conv=True, out_channels=out_channels, padding=downsample_padding, name="op")
+            ])
+        else:
+            self.downsamplers = None
+
+    def forward(self, hidden_states):
+        for resnet in self.resnets:
+            hidden_states = resnet(hidden_states, temb=None)
+        if self.downsamplers is not None:
+            for downsampler in self.downsamplers:
+                hidden_states = downsampler(hidden_states)
+        return hidden_states
+
+
+class ResnetBlock2D(nn.Module):
 
     def __init__(
         self,
@@ -274,16 +391,16 @@ class ResnetBlock2D(nn.Cell):
             groups_out = groups
 
         self.norm1 = nn.GroupNorm(num_groups=groups, num_channels=in_channels, eps=eps, affine=True)
-        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, pad_mode='pad', padding=1, has_bias=True)
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1)
 
         if temb_channels is not None:
-            self.time_emb_proj = nn.Dense(temb_channels, out_channels)
+            self.time_emb_proj = nn.Linear(temb_channels, out_channels)
         else:
             self.time_emb_proj = None
 
         self.norm2 = nn.GroupNorm(num_groups=groups_out, num_channels=out_channels, eps=eps, affine=True)
-        self.dropout = nn.Dropout(dropout) if dropout else nn.Identity()
-        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, pad_mode='pad', padding=1, has_bias=True)
+        self.dropout = nn.Dropout(dropout)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1)
 
         if non_linearity == "swish":
             self.nonlinearity = lambda x: F.silu(x)
@@ -314,14 +431,18 @@ class ResnetBlock2D(nn.Cell):
 
         self.conv_shortcut = None
         if self.use_in_shortcut:
-            self.conv_shortcut = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, pad_mode='pad', padding=0, has_bias=True)
+            self.conv_shortcut = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, padding=0)
 
-    def construct(self, input_tensor, temb):
+    def forward(self, input_tensor, temb):
         hidden_states = input_tensor
         hidden_states = self.norm1(hidden_states)
         hidden_states = self.nonlinearity(hidden_states)
 
         if self.upsample is not None:
+            # upsample_nearest_nhwc fails with large batch sizes. see https://github.com/huggingface/diffusers/issues/984
+            if hidden_states.shape[0] >= 64:
+                input_tensor = input_tensor.contiguous()
+                hidden_states = hidden_states.contiguous()
             input_tensor = self.upsample(input_tensor)
             hidden_states = self.upsample(hidden_states)
         elif self.downsample is not None:
@@ -345,112 +466,7 @@ class ResnetBlock2D(nn.Cell):
         return output_tensor
 
 
-class UpDecoderBlock2D(nn.Cell):
-
-    def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        dropout: float = 0.0,
-        num_layers: int = 1,
-        resnet_eps: float = 1e-6,
-        resnet_time_scale_shift: str = "default",
-        resnet_act_fn: str = "swish",
-        resnet_groups: int = 32,
-        resnet_pre_norm: bool = True,
-        output_scale_factor=1.0,
-        add_upsample=True,
-    ):
-        super().__init__()
-
-        resnets = []
-        for i in range(num_layers):
-            input_channels = in_channels if i == 0 else out_channels
-            resnets.append(
-                ResnetBlock2D(
-                    in_channels=input_channels,
-                    out_channels=out_channels,
-                    temb_channels=None,
-                    eps=resnet_eps,
-                    groups=resnet_groups,
-                    dropout=dropout,
-                    time_embedding_norm=resnet_time_scale_shift,
-                    non_linearity=resnet_act_fn,
-                    output_scale_factor=output_scale_factor,
-                    pre_norm=resnet_pre_norm,
-                )
-            )
-        self.resnets = nn.CellList(resnets)
-
-        if add_upsample:
-            self.upsamplers = nn.CellList([Upsample2D(out_channels, use_conv=True, out_channels=out_channels)])
-        else:
-            self.upsamplers = None
-
-    def construct(self, hidden_states):
-        for resnet in self.resnets:
-            hidden_states = resnet(hidden_states, temb=None)
-        if self.upsamplers is not None:
-            for upsampler in self.upsamplers:
-                hidden_states = upsampler(hidden_states)
-        return hidden_states
-
-
-class DownEncoderBlock2D(nn.Cell):
-
-    def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-        dropout: float = 0.0,
-        num_layers: int = 1,
-        resnet_eps: float = 1e-6,
-        resnet_time_scale_shift: str = "default",
-        resnet_act_fn: str = "swish",
-        resnet_groups: int = 32,
-        resnet_pre_norm: bool = True,
-        output_scale_factor=1.0,
-        add_downsample=True,
-        downsample_padding=1,
-    ):
-        super().__init__()
-
-        resnets = []
-        for i in range(num_layers):
-            in_channels = in_channels if i == 0 else out_channels
-            resnets.append(
-                ResnetBlock2D(
-                    in_channels=in_channels,
-                    out_channels=out_channels,
-                    temb_channels=None,
-                    eps=resnet_eps,
-                    groups=resnet_groups,
-                    dropout=dropout,
-                    time_embedding_norm=resnet_time_scale_shift,
-                    non_linearity=resnet_act_fn,
-                    output_scale_factor=output_scale_factor,
-                    pre_norm=resnet_pre_norm,
-                )
-            )
-        self.resnets = nn.CellList(resnets)
-
-        if add_downsample:
-            self.downsamplers = nn.CellList([
-                Downsample2D(in_channels, use_conv=True, out_channels=out_channels, padding=downsample_padding, name="op")
-            ])
-        else:
-            self.downsamplers = None
-
-    def construct(self, hidden_states):
-        for resnet in self.resnets:
-            hidden_states = resnet(hidden_states, temb=None)
-        if self.downsamplers is not None:
-            for downsampler in self.downsamplers:
-                hidden_states = downsampler(hidden_states)
-        return hidden_states
-
-
-class AttentionBlock(nn.Cell):
+class AttentionBlock(nn.Module):
 
     def __init__(
         self,
@@ -468,26 +484,26 @@ class AttentionBlock(nn.Cell):
         self.group_norm = nn.GroupNorm(num_channels=channels, num_groups=norm_num_groups, eps=eps, affine=True)
 
         # define q,k,v as linear layers
-        self.query = nn.Dense(channels, channels)
-        self.key = nn.Dense(channels, channels)
-        self.value = nn.Dense(channels, channels)
+        self.query = nn.Linear(channels, channels)
+        self.key = nn.Linear(channels, channels)
+        self.value = nn.Linear(channels, channels)
 
         self.rescale_output_factor = rescale_output_factor
-        self.proj_attn = nn.Dense(channels, channels, 1)
+        self.proj_attn = nn.Linear(channels, channels, 1)
 
-    def transpose_for_scores(self, projection: Tensor) -> Tensor:
-        new_projection_shape = projection.shape[:-1] + (self.num_heads, -1)
+    def transpose_for_scores(self, projection: torch.Tensor) -> torch.Tensor:
+        new_projection_shape = projection.size()[:-1] + (self.num_heads, -1)
         # move heads to 2nd position (B, T, H * D) -> (B, T, H, D) -> (B, H, T, D)
         new_projection = projection.view(new_projection_shape).permute(0, 2, 1, 3)
         return new_projection
 
-    def construct(self, hidden_states):
+    def forward(self, hidden_states):
         residual = hidden_states
         batch, channel, height, width = hidden_states.shape
 
         # norm
         hidden_states = self.group_norm(hidden_states)
-        hidden_states = hidden_states.view(batch, channel, height * width).swapaxes(1, 2)
+        hidden_states = hidden_states.view(batch, channel, height * width).transpose(1, 2)
 
         # proj to q, k, v
         query_proj = self.query(hidden_states)
@@ -501,25 +517,25 @@ class AttentionBlock(nn.Cell):
 
         # get scores
         scale = 1 / math.sqrt(math.sqrt(self.channels / self.num_heads))
-        attention_scores = F.matmul(query_states * scale, key_states.swapaxes(-1, -2) * scale)  # TODO: use baddmm
-        attention_probs = F.softmax(attention_scores.float(), axis=-1).type(attention_scores.dtype)
+        attention_scores = torch.matmul(query_states * scale, key_states.transpose(-1, -2) * scale)  # TODO: use baddmm
+        attention_probs = torch.softmax(attention_scores.float(), dim=-1).type(attention_scores.dtype)
 
         # compute attention output
-        hidden_states = F.matmul(attention_probs, value_states)
-        hidden_states = hidden_states.permute(0, 2, 1, 3)   # .contiguous()
-        new_hidden_states_shape = hidden_states.shape[:-2] + (self.channels,)
+        hidden_states = torch.matmul(attention_probs, value_states)
+        hidden_states = hidden_states.permute(0, 2, 1, 3).contiguous()
+        new_hidden_states_shape = hidden_states.size()[:-2] + (self.channels,)
         hidden_states = hidden_states.view(new_hidden_states_shape)
 
         # compute next hidden_states
         hidden_states = self.proj_attn(hidden_states)
-        hidden_states = hidden_states.swapaxes(-1, -2).reshape(batch, channel, height, width)
+        hidden_states = hidden_states.transpose(-1, -2).reshape(batch, channel, height, width)
 
         # res connect and rescale
         hidden_states = (hidden_states + residual) / self.rescale_output_factor
         return hidden_states
 
 
-class UNetMidBlock2D(nn.Cell):
+class UNetMidBlock2D(nn.Module):
 
     def __init__(
         self,
@@ -583,10 +599,10 @@ class UNetMidBlock2D(nn.Cell):
                 )
             )
 
-        self.attentions = nn.CellList(attentions)
-        self.resnets = nn.CellList(resnets)
+        self.attentions = nn.ModuleList(attentions)
+        self.resnets = nn.ModuleList(resnets)
 
-    def construct(self, hidden_states, temb=None, encoder_states=None):
+    def forward(self, hidden_states, temb=None, encoder_states=None):
         hidden_states = self.resnets[0](hidden_states, temb)
         for attn, resnet in zip(self.attentions, self.resnets[1:]):
             if self.attention_type == "default":
@@ -597,7 +613,7 @@ class UNetMidBlock2D(nn.Cell):
         return hidden_states
 
 
-class Encoder(nn.Cell):
+class Encoder(nn.Module):
 
     def __init__(
         self,
@@ -613,9 +629,9 @@ class Encoder(nn.Cell):
         super().__init__()
 
         self.layers_per_block = layers_per_block
-        self.conv_in = nn.Conv2d(in_channels, block_out_channels[0], kernel_size=3, stride=1, pad_mode='pad', padding=1, has_bias=True)
+        self.conv_in = nn.Conv2d(in_channels, block_out_channels[0], kernel_size=3, stride=1, padding=1)
         self.mid_block = None
-        self.down_blocks = nn.CellList([])
+        self.down_blocks = nn.ModuleList([])
 
         # down
         output_channel = block_out_channels[0]
@@ -655,9 +671,9 @@ class Encoder(nn.Cell):
         self.conv_norm_out = nn.GroupNorm(num_channels=block_out_channels[-1], num_groups=norm_num_groups, eps=1e-6)
         self.conv_act = nn.SiLU()
         conv_out_channels = 2 * out_channels if double_z else out_channels
-        self.conv_out = nn.Conv2d(block_out_channels[-1], conv_out_channels, 3, pad_mode='pad', padding=1, has_bias=True)
+        self.conv_out = nn.Conv2d(block_out_channels[-1], conv_out_channels, 3, padding=1)
 
-    def construct(self, x):
+    def forward(self, x):
         sample = x
         sample = self.conv_in(sample)
         # down
@@ -672,7 +688,7 @@ class Encoder(nn.Cell):
         return sample
 
 
-class Decoder(nn.Cell):
+class Decoder(nn.Module):
 
     def __init__(
         self,
@@ -687,9 +703,9 @@ class Decoder(nn.Cell):
         super().__init__()
 
         self.layers_per_block = layers_per_block
-        self.conv_in = nn.Conv2d(in_channels, block_out_channels[-1], kernel_size=3, stride=1, pad_mode='pad', padding=1, has_bias=True)
+        self.conv_in = nn.Conv2d(in_channels, block_out_channels[-1], kernel_size=3, stride=1, padding=1)
         self.mid_block = None
-        self.up_blocks = nn.CellList([])
+        self.up_blocks = nn.ModuleList([])
 
         # mid
         self.mid_block = UNetMidBlock2D(
@@ -729,9 +745,9 @@ class Decoder(nn.Cell):
         # out
         self.conv_norm_out = nn.GroupNorm(num_channels=block_out_channels[0], num_groups=norm_num_groups, eps=1e-6)
         self.conv_act = nn.SiLU()
-        self.conv_out = nn.Conv2d(block_out_channels[0], out_channels, 3, pad_mode='pad', padding=1, has_bias=True)
+        self.conv_out = nn.Conv2d(block_out_channels[0], out_channels, 3, padding=1)
 
-    def construct(self, z):
+    def forward(self, z):
         sample = z
         sample = self.conv_in(sample)
         # middle
@@ -750,18 +766,18 @@ class DiagonalGaussianDistribution:
 
     def __init__(self, parameters, deterministic=False):
         self.parameters = parameters
-        self.mean, self.logvar = F.chunk(parameters, 2, axis=1)
-        self.logvar = F.clamp(self.logvar, -30.0, 20.0)
+        self.mean, self.logvar = torch.chunk(parameters, 2, dim=1)
+        self.logvar = torch.clamp(self.logvar, -30.0, 20.0)
         self.deterministic = deterministic
-        self.std = F.exp(0.5 * self.logvar)
-        self.var = F.exp(self.logvar)
+        self.std = torch.exp(0.5 * self.logvar)
+        self.var = torch.exp(self.logvar)
         if self.deterministic:
-            self.var = self.std = F.zeros_like(self.mean, device=self.parameters.device, dtype=self.parameters.dtype)
+            self.var = self.std = torch.zeros_like(self.mean, device=self.parameters.device, dtype=self.parameters.dtype)
 
-    def sample(self) -> Tensor:
+    def sample(self, generator: Optional[torch.Generator] = None) -> Tensor:
         device = self.parameters.device
         sample_device = "cpu" if device.type == "mps" else device
-        sample = F.randn(self.mean.shape).to(device=sample_device)
+        sample = torch.randn(self.mean.shape, generator=generator, device=sample_device)
         # make sure sample is on the same device as the parameters and has same dtype
         sample = sample.to(device=device, dtype=self.parameters.dtype)
         x = self.mean + self.std * sample
@@ -769,13 +785,13 @@ class DiagonalGaussianDistribution:
 
     def kl(self, other=None):
         if self.deterministic:
-            return F.Tensor([0.0])
+            return torch.Tensor([0.0])
         else:
             if other is None:
-                return 0.5 * F.sum(F.pow(self.mean, 2) + self.var - 1.0 - self.logvar, dim=[1, 2, 3])
+                return 0.5 * torch.sum(torch.pow(self.mean, 2) + self.var - 1.0 - self.logvar, dim=[1, 2, 3])
             else:
-                return 0.5 * F.sum(
-                    F.pow(self.mean - other.mean, 2) / other.var
+                return 0.5 * torch.sum(
+                    torch.pow(self.mean - other.mean, 2) / other.var
                     + self.var / other.var
                     - 1.0
                     - self.logvar
@@ -785,15 +801,15 @@ class DiagonalGaussianDistribution:
 
     def nll(self, sample, dims=[1, 2, 3]):
         if self.deterministic:
-            return Tensor([0.0])
+            return torch.Tensor([0.0])
         logtwopi = np.log(2.0 * np.pi)
-        return 0.5 * F.sum(logtwopi + self.logvar + F.pow(sample - self.mean, 2) / self.var, dim=dims)
+        return 0.5 * torch.sum(logtwopi + self.logvar + torch.pow(sample - self.mean, 2) / self.var, dim=dims)
 
     def mode(self):
         return self.mean
 
 
-class AutoencoderKL(nn.Cell):
+class AutoencoderKL(nn.Module):
 
     def __init__(
         self,
@@ -834,8 +850,8 @@ class AutoencoderKL(nn.Cell):
             act_fn=act_fn,
         )
 
-        self.quant_conv = nn.Conv2d(2 * latent_channels, 2 * latent_channels, 1, has_bias=True)
-        self.post_quant_conv = nn.Conv2d(latent_channels, latent_channels, 1, has_bias=True)
+        self.quant_conv = nn.Conv2d(2 * latent_channels, 2 * latent_channels, 1)
+        self.post_quant_conv = nn.Conv2d(latent_channels, latent_channels, 1)
 
     def encode(self, x: Tensor) -> DiagonalGaussianDistribution:
         h = self.encoder(x)
@@ -848,11 +864,11 @@ class AutoencoderKL(nn.Cell):
         dec = self.decoder(z)
         return dec
 
-    def construct(
+    def forward(
         self,
         sample: Tensor,
         sample_posterior: bool = False,
-        generator: Optional[Generator] = None,
+        generator: Optional[torch.Generator] = None,
     ) -> Tensor:
         x = sample
         posterior = self.encode(x)
@@ -864,31 +880,14 @@ class AutoencoderKL(nn.Cell):
         return dec
 
 
-def param_dict_name_mapping(kv:Dict[str, Parameter]) -> Dict[str, Parameter]:
-    new_kv = {}
-    for k in kv.keys():
-        new_k = k
-        # GroupNorm
-        if k.endswith('.conv_norm_out.weight'): new_k = k.replace('.conv_norm_out.weight', '.conv_norm_out.gamma')
-        if k.endswith('.conv_norm_out.bias'):   new_k = k.replace('.conv_norm_out.bias',   '.conv_norm_out.beta')
-        if k.endswith('.group_norm.weight'):    new_k = k.replace('.group_norm.weight',    '.group_norm.gamma')
-        if k.endswith('.group_norm.bias'):      new_k = k.replace('.group_norm.bias',      '.group_norm.beta')
-        if k.endswith('.norm1.weight'):         new_k = k.replace('.norm1.weight',         '.norm1.gamma')
-        if k.endswith('.norm1.bias'):           new_k = k.replace('.norm1.bias',           '.norm1.beta')
-        if k.endswith('.norm2.weight'):         new_k = k.replace('.norm2.weight',         '.norm2.gamma')
-        if k.endswith('.norm2.bias'):           new_k = k.replace('.norm2.bias',           '.norm2.beta')
-        new_kv[new_k] = kv[k]
-    return new_kv
-
-
-def infer_autoencoder_kl(model:AutoencoderKL, X:Tensor, construct_func:Callable=None) -> Tuple[Tensor, Tensor]:
+def infer_autoencoder_kl(model:AutoencoderKL, X:Tensor, forward_func:Callable=None) -> Tuple[Tensor, Tensor]:
     def pad(x:Tensor, opt_C:int=8) -> Tuple[Tensor, Tuple[int]]:
         C, H, W = x.shape
         H_pad = math.ceil(H / opt_C) * opt_C - H
         W_pad = math.ceil(W / opt_C) * opt_C - W
         pL, pR, pT, pB = W_pad//2, W_pad-W_pad//2, H_pad//2, H_pad-H_pad//2
         if max(pL, pR, pT, pB) > 0:
-            x = F.pad(x, padding=(pL, pR, pT, pB), mode='reflect')
+            x = F.pad(x, (pL, pR, pT, pB), mode='reflect')
         return x, (pL, pR, pT, pB)
     def unpad(x:Tensor, pads:Tuple[int]) -> Tensor:
         pL, pR, pT, pB = pads
@@ -899,21 +898,27 @@ def infer_autoencoder_kl(model:AutoencoderKL, X:Tensor, construct_func:Callable=
         return x
 
     X_pad, pads = pad(X)
-    if construct_func:
-        X_pad_hat = construct_func(model, X_pad.unsqueeze(0)).squeeze(0)
+    if forward_func:
+        X_pad_hat = forward_func(model, X_pad.unsqueeze(0)).squeeze(0)
     else:
         X_pad_hat = model(X_pad.unsqueeze(0)).squeeze(0)
     X_hat = unpad(X_pad_hat, pads)
     return X, X_hat
 
 
-def infer_autoencoder_kl_with_latent_noise(model:AutoencoderKL, X:Tensor, eps:float=1e-5) -> Tuple[Tensor, Tensor]:
-    def construct_hijack(self:AutoencoderKL, x:Tensor) -> Tensor:
+def infer_autoencoder_kl_with_latent_noise(model:AutoencoderKL, X:Tensor, how:str='randn', eps:float=1e-5) -> Tuple[Tensor, Tensor]:
+    def forward_hijack(self:AutoencoderKL, x:Tensor) -> Tensor:
         posterior = self.encode(x)
-        z = posterior.mode()
-        z += F.randn_like(z) * eps
+        if how == 'sample':
+            z = posterior.sample()
+        else:
+            z = posterior.mode()    # vrng [-30.0, 20.0]
+            if how == 'randu':
+                z += (torch.rand_like(z) * 2 - 1) * eps
+            elif how == 'randn':
+                z += torch.randn_like(z) * eps
         return self.decode(z)
-    return infer_autoencoder_kl(model, X, construct_hijack)
+    return infer_autoencoder_kl(model, X, forward_hijack)
 
 
 def get_app(app_name:str) -> AutoencoderKL:
@@ -924,34 +929,26 @@ def get_app(app_name:str) -> AutoencoderKL:
     with open(CONFIG_FILE) as fh:
         cfg = json.load(fh)
     model = AutoencoderKL(**cfg)
-    model = model.set_train(False)
-    param_dict = load_npz_as_param_dict(WEIGHT_FILE)
-    param_dict = param_dict_name_mapping(param_dict)
-    if 'ckeck keys match':
-        model_keys = set(model.parameters_dict().keys())
-        ckpt_keys = set(param_dict.keys())
-        missing_keys = model_keys - ckpt_keys
-        redundant_keys = ckpt_keys - model_keys
-        if redundant_keys or missing_keys:
-            print('redundant keys:', redundant_keys)
-            print('missing keys:', missing_keys)
-            breakpoint()
-    ms.load_param_into_net(model, param_dict)
+    model = model.eval()
+    weights = np.load(WEIGHT_FILE)
+    state_dict = {k: torch.from_numpy(v) for k, v in weights.items()}
+    model.load_state_dict(state_dict)
     return model
 
 
-def get_sd_vae_ft_ema() -> AutoencoderKL:
+def get_app_vae_ema() -> AutoencoderKL:
     return get_app('stabilityai#sd-vae-ft-ema')
 
 
-def get_sd_vae_ft_mse() -> AutoencoderKL:
+def get_app_vae_mse() -> AutoencoderKL:
     return get_app('stabilityai#sd-vae-ft-mse')
 
 
 if __name__ == '__main__':
-    model = get_sd_vae_ft_ema()
+    model = get_app_vae_ema()
+    #model = get_app_vae_mse()
     print(model)
-    X = F.ones([1, 3, 224, 224]) * 0.5
+    X = torch.ones([1, 3, 224, 224]) * 0.5
     X_hat = model(X)
     print(X_hat.shape)
     err = (X_hat - X).abs().mean().item()
