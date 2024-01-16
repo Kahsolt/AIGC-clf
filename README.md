@@ -4,8 +4,9 @@
 
 ----
 
-比赛主页: [https://xihe.mindspore.cn/competition/mindcon23-aigc-img/0/introduction](https://xihe.mindspore.cn/competition/mindcon23-aigc-img/0/introduction)  
+Contest Page: [https://xihe.mindspore.cn/competition/mindcon23-aigc-img/0/introduction](https://xihe.mindspore.cn/competition/mindcon23-aigc-img/0/introduction)  
 Team Name: 你这图保真吗  
+Submission repo: [https://xihe.mindspore.cn/projects/kahsolt/AIGC-clf](https://xihe.mindspore.cn/projects/kahsolt/AIGC-clf)  
 
 
 ### Results
@@ -34,9 +35,19 @@ Team Name: 你这图保真吗
 
 ### Quickstart
 
-- `conda create -n ms python==3.9 & conda activate ms`
-- install [mindspore](https://github.com/mindspore-ai/mindspore#installation) and [mindcv](https://mindspore-lab.github.io/mindcv/installation/)
-- run `predict.py`, see `output/result.txt`
+⚪ run pretrained apps
+
+- install [PyTorch](https://pytorch.org/get-started/locally/)
+- `pip install -r requirements.txt`
+- run `python predict.py --app <app_name>` and see `out/result.txt`
+
+⚪ finetune the apps
+
+- link the [contest dataset](https://xihe.mindspore.cn/datasets/drizzlezyk/ai-real/tree/image) to `data`
+- run the following train scripts
+  - `python train_resnet_ft.py`
+  - `python train_resnet_hf.py`
+  - `python train_aekl_clf.py`
 
 
 #### references
