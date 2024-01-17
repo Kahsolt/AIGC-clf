@@ -17,6 +17,8 @@ transform = T.Compose([
 MIN_PATH_SIZE = 80
 
 transform_highfreq = T.Compose([
+    T.Lambda(to_hifreq),
+    T.Lambda(im_to_tensor),
     T.RandomCrop((MIN_PATH_SIZE, MIN_PATH_SIZE)),
     T.RandomHorizontalFlip(),
     T.RandomVerticalFlip(),

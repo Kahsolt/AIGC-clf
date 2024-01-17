@@ -11,8 +11,7 @@ APP_NAME = 'aekl-clf'
 SRC_PATH = HF_PATH / 'stabilityai#sd-vae-ft-ema'
 DST_PATH = HF_PATH / f'kahsolt#{APP_NAME}' ; DST_PATH.mkdir(exist_ok=True)
 
-DTYPE = 'bf16-mixed'
-EPOCH = 50
+EPOCH = 40
 BATCH_SIZE = 4
 SPLIT_RATIO = 0.3
 FEAT_LR = 1e-6
@@ -55,7 +54,7 @@ class MyLitModel(LitModel):
 
 
 if __name__ == '__main__':
-  trainloader, validloader, dataloader = get_dataloaders(BATCH_SIZE, SPLIT_RATIO, transform, transform)
+  trainloader, validloader = get_dataloaders_for_ensemble(BATCH_SIZE, 2, transform) if IS_FOR_ENSEMBLE else get_dataloaders(BATCH_SIZE, SPLIT_RATIO, transform)
   total_steps = EPOCH * len(trainloader)
   aekl = get_app_vae_ema()
   model = AutoencoderKLClassifier(aekl)
@@ -71,7 +70,9 @@ if __name__ == '__main__':
   )
   trainer.fit(lit, trainloader, validloader)
   lit = MyLitModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path, model=model)
-  trainer.test(lit, dataloader)
   save_npz_weights(lit.model, SRC_PATH, DST_PATH)
 
-  predict(get_args(), app_name=APP_NAME)
+  args = get_args()
+  predict(args, app_name=APP_NAME)
+  args.votes = 7
+  predict(args, app_name=APP_NAME)

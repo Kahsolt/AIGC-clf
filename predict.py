@@ -14,13 +14,6 @@ torch.backends.cudnn.benchmark = False
 VALID_APP_NAMES = [name[len('get_app_'):] for name in globals() if name.startswith('get_app_')]
 
 
-def transform_resnet_hf(img:PILImage) -> ndarray:
-  im_hi = to_hifreq(img)
-  im_hi = im_to_tensor(im_hi)
-  im_hi = transform_highfreq(im_hi)
-  return im_hi
-
-
 @torch.inference_mode()
 def predict(args, app_name:str='resnet'):
   is_vote = args.votes > 0
@@ -34,7 +27,7 @@ def predict(args, app_name:str='resnet'):
     from models.resnet import transform as transform_func
     infer_func = infer_clf_batch if is_vote else infer_clf
   elif app_name == 'resnet_hf':
-    transform_func = transform_resnet_hf
+    from models.resnet import transform_highfreq as transform_func
     infer_func = infer_clf_batch if is_vote else infer_clf
   elif app_name == 'aekl_clf':
     from models.aekl_clf import transform as transform_func
@@ -44,7 +37,7 @@ def predict(args, app_name:str='resnet'):
   print('app_name:', app_name)
   truth = load_truth()
   model = model_func().to(device, dtype)
-  fps = get_test_fps(args.test_data_path)
+  fps = get_test_fps(DATA_PATH)
 
   if not is_vote:
     db_file = OUT_PATH / f'stats_{app_name}.json'
@@ -83,9 +76,7 @@ def predict(args, app_name:str='resnet'):
   if not is_vote:save_db(db, db_file)
   print(f'>> pAcc: {ok} / {tot} = {ok / tot:.5%}')
 
-  out_fp = Path(args.output_path)
-  out_fp.parent.mkdir(exist_ok=True, parents=True)
-  with open(out_fp, 'w', encoding='utf-8') as fh:
+  with open(RESULT_FILE, 'w', encoding='utf-8') as fh:
     for p in preds:
       fh.write(f'{p}\n')
 
@@ -108,10 +99,7 @@ def predict(args, app_name:str='resnet'):
 
 def get_args():
   parser = ArgumentParser()
-  parser.add_argument('--model_path',     type=Path, default='model.ckpt')
-  parser.add_argument('--test_data_path', type=Path, default='./data')
-  parser.add_argument('--output_path',    type=Path, default='./out/result.txt')
-  parser.add_argument('--app',   default='resnet', choices=VALID_APP_NAMES)
+  parser.add_argument('--app', default='resnet', choices=VALID_APP_NAMES)
   parser.add_argument('--votes', type=int, default=-1)
   parser.add_argument('--thresh', type=float, default=0.5)
   args, _ = parser.parse_known_args()

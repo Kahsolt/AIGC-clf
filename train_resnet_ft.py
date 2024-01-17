@@ -10,9 +10,8 @@ APP_NAME = 'resnet-ft'
 SRC_PATH = HF_PATH / 'artfan123#resnet-18-finetuned-ai-art'
 DST_PATH = HF_PATH / f'kahsolt#{APP_NAME}' ; DST_PATH.mkdir(exist_ok=True)
 
-DTYPE = 'bf16-mixed'
-EPOCH = 10
-BATCH_SIZE = 32
+EPOCH = 8
+BATCH_SIZE = 24
 SPLIT_RATIO = 0.3
 INPUT_LR = 1e-4
 FEAT_LR = 1e-5
@@ -54,7 +53,7 @@ class MyLitModel(LitModel):
 
 
 if __name__ == '__main__':
-  trainloader, validloader, dataloader = get_dataloaders(BATCH_SIZE, SPLIT_RATIO, transform, transform)
+  trainloader, validloader = get_dataloaders_for_ensemble(BATCH_SIZE, 0, transform) if IS_FOR_ENSEMBLE else get_dataloaders(BATCH_SIZE, SPLIT_RATIO, transform)
   total_steps = EPOCH * len(trainloader)
   model = get_app_resnet()
   lit = MyLitModel(model, total_steps)
@@ -69,7 +68,9 @@ if __name__ == '__main__':
   )
   trainer.fit(lit, trainloader, validloader)
   lit = MyLitModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path, model=model)
-  trainer.test(lit, dataloader)
   save_npz_weights(lit.model, SRC_PATH, DST_PATH)
 
-  predict(get_args(), app_name=APP_NAME)
+  args = get_args()
+  predict(args, app_name=APP_NAME)
+  args.votes = 7
+  predict(args, app_name=APP_NAME)

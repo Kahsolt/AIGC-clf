@@ -7,8 +7,6 @@ from pathlib import Path
 from typing import *
 
 from tqdm import tqdm
-from PIL import Image, ImageFilter
-from PIL.Image import Image as PILImage
 import numpy as np
 from numpy import ndarray
 import matplotlib.pyplot as plt
@@ -22,7 +20,6 @@ OUT_PATH = BASE_PATH / 'out' ; OUT_PATH.mkdir(exist_ok=True)
 TRUTH_FILE = OUT_PATH / 'result-ref.txt'
 RESULT_FILE = OUT_PATH / 'result.txt'
 
-npimg = ndarray
 mean = lambda x: sum(x) / len(x) if len(x) else 0.0
 
 
@@ -52,32 +49,3 @@ def load_db(fp:Path) -> Dict[str, Any]:
 def save_db(db:Dict[str, Any], fp:Path):
   with open(fp, 'w', encoding='utf-8') as fh:
     json.dump(db, fh, indent=2, ensure_ascii=False)
-
-
-def load_img(fp:Path) -> PILImage:
-  return Image.open(fp).convert('RGB')
-
-def pil_to_npimg(img:PILImage) -> npimg:
-  return np.asarray(img, dtype=np.uint8)
-
-def npimg_to_pil(im:npimg) -> PILImage:
-  assert im.dtype in [np.uint8, np.float32]
-  if im.dtype == np.float32:
-    assert 0.0 <= im.min() and im.max() <= 1.0
-  return Image.fromarray(im)
-
-def minmax_norm(dx:ndarray, vmin:int=None, vmax:int=None) -> npimg:
-  vmin = vmin or dx.min()
-  vmax = vmax or dx.max()
-  out = (dx - vmin) / (vmax - vmin)
-  return (out * 255).astype(np.uint8)
-
-def npimg_diff(x:npimg, y:npimg) -> ndarray:
-  return x.astype(np.int16) - y.astype(np.int16)
-
-def to_hifreq(img:PILImage) -> ndarray:
-  img_lo = img.filter(ImageFilter.GaussianBlur(3))
-  im_lo = pil_to_npimg(img_lo)
-  im = pil_to_npimg(img)
-  im_hi = npimg_diff(im, im_lo)   # int16
-  return (im_hi / 255.0).astype(np.float32)
