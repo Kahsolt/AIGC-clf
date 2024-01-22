@@ -7,7 +7,7 @@
 Contest Page: [https://xihe.mindspore.cn/competition/mindcon23-aigc-img/0/introduction](https://xihe.mindspore.cn/competition/mindcon23-aigc-img/0/introduction)  
 Team Name: 你这图保真吗  
 Submission repo: [https://xihe.mindspore.cn/projects/kahsolt/AIGC-clf](https://xihe.mindspore.cn/projects/kahsolt/AIGC-clf)  
-
+Final Score/Rank: 71%/7th, no award :( (refer to [SOLUTIONS.md](SOLUTIONS.md) for top solutions)
 
 ### Results
 
